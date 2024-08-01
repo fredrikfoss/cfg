@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# dnf5 install R-rmarkdown
+#
+# https://github.com/quarto-dev/quarto-cli
+# put in ~/.local/quarto
+#
+# Also typst can be nice to have instead of latex to render
+# to pdf

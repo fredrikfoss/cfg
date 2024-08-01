@@ -1,0 +1,25 @@
+browser lynx
+
+# Keymaps
+bind-key j down
+bind-key k up
+bind-key J next
+bind-key K prev
+bind-key l open
+bind-key h quit
+bind-key q hard-quit
+bind-key , open-in-browser-and-mark-read
+
+# Colorscheme
+color background          default    default
+color listnormal          color7   default
+color listnormal_unread   color2     default
+color listfocus           color7     color8 bold dim
+color listfocus_unread    green     color8 bold dim
+color title               magenta    default
+color info                color6    default
+color article             default   default
+color end-of-text-marker color0 default
+highlight article "^(Feed|Link):.*$" color7 default
+highlight article "^(Title|Date|Author):.*$" color7 default
+highlight article "^(Title):.*$" yellow blue bold

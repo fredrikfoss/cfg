@@ -1,0 +1,10 @@
+#!/bin/bash
+
+yn() {
+	read -p "$1 [y/N]: " -n 1 -r
+	printf '\n'
+	[[ $REPLY =~ ^[yY]$ ]]
+}
+
+yn "run 'go install filippo.io/age/cmd/...@latest'?" &&
+	go install filippo.io/age/cmd/...@latest

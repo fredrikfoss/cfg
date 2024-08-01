@@ -1,0 +1,68 @@
+# Vim keys.
+set editing-mode vi
+set keymap vi
+
+$if mode=vi
+  # set keymap vi-command
+  # ?: reverse-search-history
+  # /: forward-search-history
+
+  # Allow tab for completion.
+  set keymap vi-insert
+  TAB: menu-complete
+  "\e[Z": menu-complete-backward
+$endif
+
+# Completed names which are symbolic links to
+# directories have a slash appended.
+set mark-symlinked-directories on
+
+# Disable beep.
+set bell-style none
+
+# Don't wait for character when reading an
+# ambiguous key sequence.
+set keyseq-timeout 1
+
+# If there are more than 200 possible completions
+# for a word, ask to show them all.
+set completion-query-items 200
+
+# Case-insensitive completion matching.
+set completion-ignore-case on
+
+# Show extra file information when completing.
+set visible-stats on
+# set colored-completion-prefix on
+# set colored-stats on
+
+# Autocomplete hidden files even when the pattern
+# doesn't begin with a dot.
+set match-hidden-files on
+
+# Display common prefix before cycling through
+# completions.
+set menu-complete-display-prefix on
+
+# Show all autocomplete results at once.
+set page-completions off
+
+# List and complete matches immediately if only
+# one alternative.
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+
+# ?
+set echo-control-characters off
+
+# Be more intelligent when autocompleting by also
+# looking at the text after the cursor.
+set skip-completed-text on
+
+# Always allow eight-bit input and output.
+set input-meta on
+set convert-meta off
+set output-meta on
+
+# https://cirw.in/blog/bracketed-paste
+set enable-bracketed-paste on

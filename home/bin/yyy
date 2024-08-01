@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Yank
+
+true >/tmp/buf
+while IFS= read -r line; do
+	echo "$line" >>/tmp/buf
+	echo "$line"
+done

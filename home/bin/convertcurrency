@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Convert a specified amount from one currency to another using the
+# exchangerate-api.com service. Assumes either the API key is stored in the
+# environment variable EXCHANGERATE_API_KEY or in a passwordstore accessible
+# via gopass
+
+if ! command -v jq &>/dev/null; then
+	echo "requires jq" >&2
+	exit 1
+fi
+
+if [[ -z $EXCHANGERATE_API_KEY ]]; then
+	echo "EXCHANGERATE_API_KEY not set" >&2
+	exit 1
+fi
+
+if [[ $# -ne 3 ]]; then
+	echo "usage: ${0##*/} <from_currency> <to_currency> <amount>" >&2
+	exit 1
+fi
+
+from_currency=${1^^}
+to_currency=${2^^}
+amount=$3
+
+response=$(curl -s "https://v6.exchangerate-api.com/v6/${EXCHANGERATE_API_KEY}/latest/${from_currency}")
+exchange_rate=$(jq -r --arg currency "$to_currency" '.conversion_rates[$currency]' <<<"$response")
+
+if [[ -z $exchange_rate || $exchange_rate == null ]]; then
+	echo "currency or exchange rate not found" >&2
+	exit 1
+fi
+
+bc <<<"scale=4; $amount * $exchange_rate"

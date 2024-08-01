@@ -1,0 +1,72 @@
+#!/bin/bash
+set -e
+
+# Installs the latest release of fastfetch from
+# https://github.com/fastfetch-cli/fastfetch to ~/.local without requiring root
+# access.
+#
+# Note that the downloaded tar file is not removed and can be found in either
+# ~/Downloads or /tmp.
+
+declare REPO_OWNER=fastfetch-cli
+declare REPO_NAME=fastfetch
+declare EXE_NAME=fastfetch
+declare EXE_TARGETDIR="${1:-$HOME/.local/bin}"
+declare OS ARCH
+declare TEMPDIR
+
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+[[ $ARCH = x86_64 ]] && ARCH=amd64
+
+die() {
+	echo "$@" >&2
+	exit 1
+}
+
+init_arch() {
+	ARCH=$(uname -m)
+	case $ARCH in
+	aarch64) ARCH=aarch64 ;;
+	arm64) ARCH="aarch64" ;;
+	x86_64) ARCH=amd64 ;;
+	esac
+}
+
+init_os() {
+	OS=$(uname -s)
+	case $OS in
+	Linux*) OS=linux ;;
+	Darwin*) OS=macos ARCH=universal ;;
+	MINGW* | MSYS*) OS=windows ;;
+	esac
+}
+
+download() {
+	local url path
+	url=$(curl -sSL "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest" |
+		jq -r '.assets[]
+			| select(.name | test("'"$OS"'.*'"$ARCH"'.*tar.gz$"))
+			| .browser_download_url') ||
+		die "unable to fetch download URL"
+	path="$([[ -d $HOME/Downloads ]] && echo "$HOME/Downloads" || echo /tmp)/${url##*/}"
+	curl -L "$url" -o "$path"
+	tar -xf "$path" -C "$TEMPDIR"
+	echo "downloaded $REPO_OWNER/$REPO_NAME to $path" >&2
+}
+
+install_exe() {
+	find "$TEMPDIR" -type f -name "$EXE_NAME" ! -path "*completion*" -exec mv -t "$EXE_TARGETDIR" {} +
+	chmod +x "$EXE_TARGETDIR/$EXE_NAME"
+	echo "installed $EXE_NAME to $EXE_TARGETDIR" >&2
+}
+
+TEMPDIR=$(mktemp -d)
+trap 'rm -rf -- "$TEMPDIR"' EXIT
+
+init_arch
+init_os
+download
+
+mkdir -p "$EXE_TARGETDIR"
+install_exe

@@ -1,0 +1,62 @@
+#!/bin/bash
+set -e
+
+# Install latest release of croc from https://github.com/schollz/croc to
+# ~/.local without requiring root access.
+#
+# Note that the downloaded tar file is not removed and can be found in
+# ~/Downloads.
+
+declare REPO=schollz/croc
+declare TARGETDIR="$HOME/.local/bin"
+declare OS
+declare ARCH
+declare TEMPDIR
+
+die() {
+	printf '%s: %s.\n' "$(basename "$0")" "$1" >&2
+	exit 1
+}
+
+determine_system() {
+	OS=$(uname -s)
+	case $OS in
+	Linux*) OS=Linux ;;
+	Darwin*) OS=macOS ;;
+	esac
+
+	ARCH=$(uname -m)
+	case $ARCH in
+	aarch64) ARCH=ARM64 ;;
+	x86_64) ARCH=64bit ;;
+	esac
+}
+
+download() {
+	local url
+	local path
+	url=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest" |
+		jq -r '.assets[]
+			| select(.name | test("'"$OS"'.*'"$ARCH"'.*tar.gz$"))
+			| .browser_download_url') ||
+		die "unable to fetch download url"
+	path="$HOME/Downloads/${url##*/}"
+	mkdir -p "$HOME/Downloads"
+	curl -# -L "$url" -o "$path"
+	tar -xf "$path" -C "$TEMPDIR"
+	printf 'github.com/%s -> %s\n' "$REPO" "$path" >&2
+}
+
+install() {
+	mkdir -p "$TARGETDIR"
+
+	mv "$TEMPDIR/croc" "$TARGETDIR"
+	printf 'croc -> %s/croc\n' "$TARGETDIR" >&2
+}
+
+TEMPDIR=$(mktemp -d)
+trap 'rm -rf -- "$TEMPDIR"' EXIT
+
+determine_system
+download
+install

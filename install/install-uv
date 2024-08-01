@@ -1,0 +1,65 @@
+#!/bin/bash
+set -e
+
+# Install latest release of uv from https://github.com/astral-uv/uv to
+# ~/.local without requiring root access.
+#
+# Note that the downloaded tar file is not removed and can be found in
+# ~/Downloads.
+
+declare REPO=astral-sh/uv
+declare TARGETDIR="$HOME/.local/bin"
+declare ARCH
+declare OS
+declare TEMPDIR
+
+die() {
+	printf '%s: %s.\n' "$(basename "$0")" "$1" >&2
+	exit 1
+}
+
+determine_system() {
+	OS=$(uname -s)
+	case $OS in
+	Linux*) OS=unknown-linux-gnu ;;
+	Darwin*) OS=apple-darwin ;;
+	esac
+
+	ARCH=$(uname -m)
+	case $ARCH in
+	aarch64) ARCH=aarch64 ;;
+	x86_64) ARCH=x86_64 ;;
+	esac
+}
+
+download() {
+	local url
+	local path
+	url=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest" |
+		jq -r '.assets[]
+			| select(.name | test("'"$ARCH"'.*'"$OS"'.*tar.gz$"; "i"))
+			| .browser_download_url') ||
+		die "unable to fetch download url"
+	path="$HOME/Downloads/${url##*/}"
+	mkdir -p "$HOME/Downloads"
+	curl -# -L "$url" -o "$path"
+	tar -xf "$path" -C "$TEMPDIR"
+	printf 'github.com/%s -> %s\n' "$REPO" "$path" >&2
+}
+
+install() {
+	mkdir -p "$TARGETDIR"
+
+	mv "$TEMPDIR/uv-$ARCH-$OS/uv" "$TARGETDIR"
+	printf 'uv -> %s/uv\n' "$TARGETDIR" >&2
+
+	mv "$TEMPDIR/uv-$ARCH-$OS/uvx" "$TARGETDIR"
+	printf 'uvx -> %s/uvx\n' "$TARGETDIR" >&2
+}
+
+TEMPDIR=$(mktemp -d)
+trap 'rm -rf -- "$TEMPDIR"' EXIT
+
+determine_system
+download
+install

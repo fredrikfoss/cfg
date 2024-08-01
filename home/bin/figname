@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if ! command -v identify &>/dev/null; then
+	echo "requires ImageMagick" >&2
+	exit 1
+fi
+
+if [[ $# -lt 1 ]]; then
+	echo "usage: ${0##*/} <image>" >&2
+	exit 1
+fi
+
+main() {
+	# TODO check for existence of identify
+	local w h file suf
+	file=${1##*/}
+	suf=${file##*.}
+	w=$(identify -format "%w" "$1")
+	h=$(identify -format "%h" "$1")
+	printf "fig-%sx%s.%s" "$w" "$h" "$suf"
+}
+
+main "$@"

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if ! command -v glow &>/dev/null; then
+	echo "requires charmbracelet/glow" >&2
+	exit 1
+fi
+
+if [[ -z $1 && -f README.md ]]; then
+	exec glow -l README.md
+fi
+
+exec glow -l "$1"

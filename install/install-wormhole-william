@@ -1,0 +1,47 @@
+#!/bin/bash
+set -e
+
+# Installs the latest release from a GitHub repository into $TARGETDIR
+# (default: ~/.local) without requiring root access. First argument to script
+# will override $TARGETDIR.
+#
+# Note that the downloaded tar file is not removed and can be found in either
+# ~/Downloads or /tmp.
+
+declare USER=psanford
+declare REPO=wormhole-william
+declare EXE=wormhole-william
+declare TARGETDIR="${1:-$HOME/.local/bin}"
+
+declare OS ARCH
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+[[ $ARCH = aarch64 ]] && ARCH=arm64
+[[ $ARCH = x86_64 ]] && ARCH=amd64
+
+fetch_latest_release() {
+	local url
+	url=$(curl -s "https://api.github.com/repos/$USER/$REPO/releases/latest" |
+		jq -r '.assets[] | select(.name | test("'"$OS"'.*'"$ARCH"'$"; "i")) | .browser_download_url')
+	echo "$url"
+}
+
+download() {
+	local url
+	url="$(fetch_latest_release)"
+	[[ -z $url ]] && echo "unable to fetch download URL" >&2 && return 1
+	curl -L "$url" -o "$TARGETDIR/$EXE"
+	chmod ug+x "$TARGETDIR/$EXE"
+	echo "installed $EXE to $TARGETDIR" >&2
+}
+
+generate_completion() {
+	local completiondir="$HOME/.local/share/bash-completion/completions"
+	mkdir -p "$completiondir"
+	"$TARGETDIR/$EXE" completion bash >"$completiondir/$EXE"
+	echo "installed shell completion to $completiondir/$EXE"
+}
+
+mkdir -p "$TARGETDIR"
+download
+generate_completion

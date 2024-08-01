@@ -1,0 +1,8 @@
+#!/bin/sh
+
+command -v qrencode >/dev/null 2>&1 || {
+	printf 'requires qrencode <https://fukuchi.org/works/qrencode/>\n'
+	exit 1
+}
+
+qrencode -t ANSI256UTF8 -o - -- "${*:-$(cat)}"

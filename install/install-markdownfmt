@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# TODO: Install from GH releases instead
+
+yn() {
+	read -p "$1 [y/N]: " -n 1 -r
+	printf '\n'
+	[[ $REPLY =~ ^[yY]$ ]]
+}
+
+yn "run 'go install github.com/Kunde21/markdownfmt/v3/cmd/markdownfmt@latest'?" &&
+	go install github.com/Kunde21/markdownfmt/v3/cmd/markdownfmt@latest

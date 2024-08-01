@@ -1,0 +1,57 @@
+# white to black
+set $base0 #000000
+set $base1 #101010
+set $base2 #202020
+set $base3 #303030
+set $base4 #404040
+set $base5 #505050
+set $base6 #606060
+set $base7 #707070
+set $base8 #808080
+set $base9 #909090
+set $baseA #A0A0A0
+set $baseB #B0B0B0
+set $baseC #C0C0C0
+set $baseD #D0D0D0
+set $baseE #E0E0E0
+set $baseF #F0F0F0
+
+# red
+set $red0 #E33F3F
+set $red1 #D32F2F
+
+# yellow
+set $yellow0 #B26E3D
+set $yellow1 #C27E4D
+
+
+
+# set $base05 #B0B0B0
+# set $base06 #D0D0D0
+# set $base07 #F0F0F0
+#
+# set $base08 #ab4642
+# set $base09 #dc9656
+# set $base0A #f7ca88
+# set $base0B #a1b56c
+# set $base0C #86c1b9
+# set $base0D #7cafc2
+# set $base0E #ba8baf
+# set $base0F #a16946
+
+# set $base00 #181818
+# set $base01 #282828
+# set $base02 #383838
+# set $base03 #585858
+# set $base04 #b8b8b8
+# set $base05 #d8d8d8
+# set $base06 #e8e8e8
+# set $base07 #f8f8f8
+# set $base08 #ab4642
+# set $base09 #dc9656
+# set $base0A #f7ca88
+# set $base0B #a1b56c
+# set $base0C #86c1b9
+# set $base0D #7cafc2
+# set $base0E #ba8baf
+# set $base0F #a16946

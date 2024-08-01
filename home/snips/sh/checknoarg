@@ -1,0 +1,5 @@
+# Check for presence of command-line argument or input from stdin
+test $# -lt 1 && test -t 0 && {
+	echo "Usage: ${0##*/} <...>" >&2
+	exit 1
+}

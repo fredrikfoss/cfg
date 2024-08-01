@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+
+_have() { command -v "$1" >/dev/null 2>&1; }
+
+edit() {
+	! _have "$1" && {
+		echo "$1 not found" >&2
+		return 1
+	}
+	cmd=$(command -v "$1")
+	cd "$(dirname "$cmd")"
+	"${EDITOR:-vi}" "$1"
+	cd -
+}
+
+# ---------------------- bash completion context ---------------------
+
+# add `complete -C vic vic` to bashrc
+
+cmds=$(
+	IFS=:
+	for dir in $PATH; do
+		[ -d "$dir" ] && for c in "$dir"/*; do
+			echo "${c##*/}"
+		done
+	done
+	unset IFS
+)
+
+if test -n "${COMP_LINE}"; then
+	pre="${COMP_LINE##* }"
+	for c in ${cmds:+${cmds}}; do
+		test -z "${pre}" -o "${c}" != "${c#"${pre}"}" && echo "$c"
+	done
+	exit
+fi
+
+# ------------------------------- main -------------------------------
+
+test "$#" -ne 1 && {
+	echo "usage: ${0##*/} <command>"
+	exit 1
+}
+
+edit "$1"

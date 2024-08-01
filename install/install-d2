@@ -1,0 +1,78 @@
+#!/bin/bash
+set -e
+
+# Installs the latest release of d2 from https://github.com/terrastruct/d2 to
+# ~/.local without requiring root access.
+#
+# Note that the downloaded tar file is not removed and can be found in either
+# ~/Downloads or /tmp.
+
+declare REPO_OWNER=terrastruct
+declare REPO_NAME=d2
+declare EXE_NAME=d2
+declare EXE_TARGETDIR="$HOME/.local/bin"
+declare MAN_NAME=d2.1
+declare MAN_TARGETDIR="$HOME/.local/share/man/man1"
+declare OS ARCH
+declare TEMPDIR
+
+die() {
+	echo "$@" >&2
+	exit 1
+}
+
+init_os() {
+	OS=$(uname -s)
+	case $OS in
+	Linux*) OS=linux ;;
+	Darwin*) OS=macos ;;
+	MINGW* | MSYS*) OS=windows ;;
+	esac
+}
+
+init_arch() {
+	ARCH=$(uname -m)
+	case $ARCH in
+	aarch64) ARCH=arm64 ;;
+	arm64) ARCH=arm64 ;;
+	x86_64) ARCH=amd64 ;;
+	esac
+}
+
+download() {
+	local url path
+	url=$(curl -sSL "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest" |
+		jq -r '.assets[]
+			| select(.name | test("'"$OS"'.*'"$ARCH"'.*tar.gz$"; "i"))
+			| .browser_download_url') ||
+		die "unable to fetch download URL"
+	path="$([[ -d $HOME/Downloads ]] && echo "$HOME/Downloads" || echo /tmp)/${url##*/}"
+	curl -L "$url" -o "$path"
+	tar -xf "$path" -C "$TEMPDIR"
+	echo "downloaded $REPO_OWNER/$REPO_NAME to $path" >&2
+}
+
+install_exe() {
+	find "$TEMPDIR" -type f -name "$EXE_NAME" ! -path "*completion*" -exec mv -t "$EXE_TARGETDIR" {} +
+	chmod +x "$EXE_TARGETDIR/$EXE_NAME"
+	echo "installed $EXE_NAME to $EXE_TARGETDIR" >&2
+}
+
+install_man() {
+	find "$TEMPDIR" -type f -name "$MAN_NAME" ! -path "*completion*" -exec mv -t "$MAN_TARGETDIR" {} +
+	chmod +x "$MAN_TARGETDIR/$MAN_NAME"
+	echo "installed $MAN_NAME to $EXE_TARGETDIR" >&2
+}
+
+TEMPDIR=$(mktemp -d)
+trap 'rm -rf -- "$TEMPDIR"' EXIT
+
+init_os
+init_arch
+download
+
+mkdir -p "$EXE_TARGETDIR"
+install_exe
+
+mkdir -p "$MAN_TARGETDIR"
+install_man

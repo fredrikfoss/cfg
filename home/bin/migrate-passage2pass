@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# https://github.com/FiloSottile/passage/issues/24#issuecomment-1365199739
+#
+# Remember to
+#
+# add this to ~/.password-store/.gitattributes:
+#
+# * text=auto eol=lf
+# *.gpg -text diff=gpg
+#
+# add the gpg public key to ~/.password-store/.public-keys/0x9EB1K5... and
+# the key-id to ~/.password-store/.gpg-id
+
+set -eou pipefail
+
+pass=/usr/bin/pass
+
+# Confirmation check
+read -rp "Proceed? [y/N]: " confirm
+if [[ $confirm != "y" ]]; then
+	echo "cancelling..."
+	exit 1
+fi
+
+cd "${PASSAGE_DIR:-$HOME/.passage/store}"
+while read -r -d "" passfile; do
+	name="${passfile#./}"
+	name="${name%.age}"
+	[[ -f ${PASSWORD_STORE_DIR:-$HOME/.password-store}/$name.gpg ]] && continue
+	passage "$name" | $pass insert -m "$name" || {
+		$pass rm "$name"
+		break
+	}
+done < <(find . -path '*/.git' -prune -o -iname '*.age' -print0)
+
+$pass git push

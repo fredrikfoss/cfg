@@ -1,0 +1,17 @@
+#!/bin/bash
+
+VOLUME=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+VOLUME_PERCENT=$(awk '{print int($2 * 100)}' <<<"$VOLUME")
+
+notify_args=(
+	-e
+	-h string:x-canonical-private-synchronous:volume
+	-h "int:value:${VOLUME_PERCENT}"
+	-t 800
+)
+
+if [[ $VOLUME = *MUTED* ]]; then
+	notify-send "${notify_args[@]}" "Volume: Muted"
+else
+	notify-send "${notify_args[@]}" "Volume: ${VOLUME_PERCENT}%"
+fi

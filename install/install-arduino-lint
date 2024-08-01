@@ -1,0 +1,59 @@
+#!/bin/bash
+set -e
+
+# Installs the latest release from a repository into $TARGETDIR (default:
+# ~/.local) without requiring root access. First argument to script will
+# override $TARGETDIR.
+#
+# Note that the downloaded tar file is not removed and can be found in either
+# ~/Downloads or /tmp.
+
+declare PROJECT_OWNER=arduino
+declare PROJECT_NAME=arduino-lint
+declare EXE_NAME=arduino-lint
+declare TARGETDIR="${1:-$HOME/.local/bin}"
+
+declare OS ARCH
+
+init_arch() {
+	ARCH=$(uname -m)
+	case $ARCH in
+	aarch64) ARCH="ARM64" ;;
+	arm64) ARCH="ARM64" ;;
+	x86) ARCH="32bit" ;;
+	x86_64) ARCH="64bit" ;;
+	i686) ARCH="32bit" ;;
+	i386) ARCH="32bit" ;;
+	esac
+}
+
+init_os() {
+	OS=$(uname -s)
+	case "$OS" in
+	Linux*) OS='Linux' ;;
+	Darwin*) OS='macOS' ;;
+	esac
+}
+
+install() {
+	local url path
+	# url="https://downloads.${PROJECT_OWNER}.cc/${PROJECT_NAME}/nightly/arduino-lint_nightly-latest_${OS}_${ARCH}.tar.gz"
+	url="https://downloads.${PROJECT_OWNER}.cc/${PROJECT_NAME}/arduino-lint_latest_${OS}_${ARCH}.tar.gz"
+	[[ -z $url ]] && echo "unable to fetch download URL" >&2 && return 1
+	path="$([[ -d $HOME/Downloads ]] && echo "$HOME/Downloads" || echo /tmp)/${url##*/}"
+	curl -L "$url" -o "$path"
+	tar -xf "$path" -C "$TEMP_DIR"
+	find "$TEMP_DIR" -type f -name "$EXE_NAME" ! -path "*completion*" -exec mv -t "$TARGETDIR" {} +
+	chmod +x "$TARGETDIR/$EXE_NAME"
+	echo "installed $EXE_NAME to $TARGETDIR" >&2
+}
+
+declare TEMP_DIR
+TEMP_DIR=$(mktemp -d)
+trap 'rm -rf -- "$TEMP_DIR"' EXIT
+
+mkdir -p "$TARGETDIR"
+
+init_arch
+init_os
+install

@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+if ! command -v podman &>/dev/null; then
+	echo "requires podman" >&2
+	exit 1
+fi
+
+exec podman run \
+	--platform linux/amd64 \
+	--rm \
+	--privileged \
+	--volume "$(pwd):/data" \
+	docker.io/pandoc/extra:edge \
+	"$@"

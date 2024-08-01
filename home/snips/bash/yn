@@ -1,0 +1,8 @@
+yn() {
+	read -p "$1 [y/N]: " -n 1 -r
+	printf '\n'
+	[[ $REPLY =~ ^[yY]$ ]]
+}
+
+yn "run 'ls -1a'?" &&
+	ls -1a

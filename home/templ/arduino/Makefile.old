@@ -1,0 +1,16 @@
+BOARD ?= arduino:avr:uno
+PORT ?= /dev/ttyACM*
+BUILD_DIR = build
+
+.PHONY: all compile flash clean
+
+all: compile flash clean
+
+compile:
+	arduino-cli compile --fqbn $(BOARD) --output-dir $(BUILD_DIR) .
+
+flash:
+	arduino-cli upload --port $(PORT) --fqbn $(BOARD) --input-dir $(BUILD_DIR)
+
+clean:
+	rm -rf $(BUILD_DIR)

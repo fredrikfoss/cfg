@@ -1,0 +1,68 @@
+# https://greshake.github.io/i3status-rust/i3status_rs/blocks
+
+[theme]
+theme = "native"
+[theme.overrides]
+# separator_fg = "#888888"
+# idle_fg = "#CCCCCC"
+idle_fg = "#dddddd"
+# info_fg = "#93a1a1"
+good_fg = "#00ff00"
+warning_fg = "#ffff00"
+critical_fg = "#ff0000"
+
+[icons]
+icons = "none"
+
+[[block]]
+block = "bluetooth"
+mac = "7C:C1:80:33:A5:31"
+format = "BT: $name"
+disconnected_format = ""
+[block.battery_state]
+"0..20" = "critical"
+"21..70" = "warning"
+"71..100" = "good"
+
+# [[block]]
+# block = "privacy"
+# [[block.driver]]
+# name = "pipewire"
+
+[[block]]
+block = "net"
+format = "{W: ($signal_strength at $ssid) $ip|E: $ip ($bitrate)}"
+inactive_format = "W/E: down"
+missing_format = "W/E: down"
+[block.theme_overrides]
+idle_fg = "#00FF00" # will always show green...
+
+# Mic
+[[block]]
+block = "sound"
+driver = "auto"
+device_kind = "source"
+format = "$icon{ $volume|}"
+
+[[block]]
+block = "sound"
+format = "$icon{ $volume|}"
+
+[[block]]
+block = "backlight"
+format = "$icon $brightness"
+
+[[block]]
+block = "battery"
+device = "DisplayDevice"
+driver = "upower"
+format = "$icon $percentage $power $time"
+full_format = "$icon $percentage"
+charging_format = "$icon $percentage $time"
+empty_format = "$icon $percentage $time"
+not_charging_format = "$icon $percentage $time"
+
+[[block]]
+block = "time"
+format = "$timestamp.datetime(f:'%Y-%m-%d %X')"
+interval = 1

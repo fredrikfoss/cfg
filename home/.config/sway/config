@@ -1,0 +1,242 @@
+# Use Super (aka Cmd, Windows) as a modifier key.
+set $super Mod4
+set $alt Mod1
+
+# Font used for window titles (and bar).
+font DejaVu Sans Mono 7
+
+# Disable gaps and borders.
+default_border normal 0
+gaps inner 0
+gaps outer 0
+
+### Behavior.
+focus_follows_mouse no
+
+### Window rules.
+for_window {
+    [shell="xwayland"] title_format "[X] %title"
+    [app_id="firefox"] inhibit_idle fullscreen
+    [app_id="firefox" title="Firefox — Sharing Indicator"] floating enable
+    [app_id="blueman-manager"] floating enable
+    [app_id="mpv"] inhibit_idle focus
+    [app_id="qalculate-gtk"] floating enable
+    [window_role="pop-up"] floating enable
+    [window_role="bubble"] floating enable
+    [window_role="dialog"] floating enable
+    [window_type="dialog"] floating enable
+}
+
+### Input/output configuration.
+input "type:keyboard" {
+    xkb_layout us
+    xkb_options caps:ctrl_modifier,compose:ralt
+    # xkb_options caps:ctrl_modifier,compose:ralt,altwin:swap_lalt_lwin
+    repeat_delay 150
+    repeat_rate 50
+}
+
+input "type:touchpad" {
+    tap enabled
+    click_method clickfinger
+    natural_scroll enabled
+    pointer_accel 0.5
+    scroll_factor 2
+}
+
+output eDP-1 {
+    scale 1.5
+}
+
+exec_always killall swayidle; swayidle -w \
+    timeout 900 'playerctl -a pause; swaylock -f -c 000000' \
+    timeout 1200 'swaymsg "output * power off"' \
+    resume 'swaymsg "output * power on"' \
+    before-sleep 'playerctl -a pause; swaylock -f -c 000000' \
+    lock 'playerctl -a pause; swaylock -f -c 000000'
+
+### Key bindings.
+floating_modifier $super normal
+
+# Run terminal with super+Enter.
+bindsym $super+Return exec foot
+
+# Kill focused window.
+bindsym $super+q kill
+
+# Start launcher.
+set $menu j4-dmenu-desktop -I -t foot -d 'wmenu -i -l 10 -p "Run:"'
+bindsym $super+d exec pkill wmenu || $menu
+
+# Reload config file.
+bindsym $super+Shift+c reload
+
+# Moving focus.
+bindsym $super+h  focus left
+bindsym $super+j  focus down
+bindsym $super+k    focus up
+bindsym $super+l focus right
+
+# Moving windows.
+bindsym $super+Shift+h  move left
+bindsym $super+Shift+j  move down
+bindsym $super+Shift+k    move up
+bindsym $super+Shift+l move right
+
+# Moving workspaces.
+bindsym $super+1 workspace number 1
+bindsym $super+2 workspace number 2
+bindsym $super+3 workspace number 3
+bindsym $super+4 workspace number 4
+bindsym $super+5 workspace number 5
+bindsym $super+6 workspace number 6
+bindsym $super+7 workspace number 7
+bindsym $super+8 workspace number 8
+bindsym $super+9 workspace number 9
+bindsym $super+0 workspace number 10
+
+# Moving windows through workspaces.
+bindsym $super+Shift+1 move container to workspace number 1
+bindsym $super+Shift+2 move container to workspace number 2
+bindsym $super+Shift+3 move container to workspace number 3
+bindsym $super+Shift+4 move container to workspace number 4
+bindsym $super+Shift+5 move container to workspace number 5
+bindsym $super+Shift+6 move container to workspace number 6
+bindsym $super+Shift+7 move container to workspace number 7
+bindsym $super+Shift+8 move container to workspace number 8
+bindsym $super+Shift+9 move container to workspace number 9
+bindsym $super+Shift+0 move container to workspace number 10
+
+# Layout stuff.
+bindsym $super+b splith
+bindsym $super+v splitv
+
+bindsym $super+s layout stacking
+bindsym $super+w layout tabbed
+bindsym $super+e layout toggle split
+
+bindsym $super+f fullscreen
+bindsym $super+Shift+f floating toggle; resize set 2560 1090; move position 0 0
+
+bindsym $super+Shift+space floating toggle
+
+bindsym $super+space focus mode_toggle
+
+bindsym $super+a focus parent
+
+# Scratchpad.
+bindsym $super+Shift+minus move scratchpad
+bindsym $super+minus scratchpad show
+
+# Resize containers.
+mode "Resize" {
+    bindsym h resize shrink width 10
+    bindsym j resize grow height 10
+    bindsym k resize shrink height 10
+    bindsym l resize grow width 10
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $super+r mode "default"
+}
+bindsym $super+r mode "Resize"
+
+# Power management.
+set $power_control Power: [L]ock, [E]xit, [S]uspend, [R]eboot, [P]oweroff
+
+mode "$power_control" {
+    bindsym l exec swaylock -f -c 000000, mode default
+    bindsym e exec swaymsg exit, mode default
+    bindsym s exec swaymsg exec systemctl suspend, mode default
+    bindsym r exec swaymsg exec reboot, mode default
+    bindsym p exec swaymsg exec poweroff, mode default
+
+    bindsym Escape mode default
+    bindsym $super+z mode default
+}
+bindsym $super+z mode "$power_control"
+
+# Screenshots. TODO: Use something else, maybe shotman? remove ocr.
+set $screenshot Screenshot: [S]ave, [C]opy, [O]CR
+
+mode "$screenshot" {
+    bindsym s exec 'grim -g "$(slurp)"', mode default
+    bindsym c exec 'grim -g "$(slurp)" - | wl-copy', mode default
+    bindsym o exec 'grim -g "$(slurp)" - | tesseract -l eng+nor - - | wl-copy', mode default
+
+    bindsym Escape mode default
+    bindsym $super+p mode default
+    bindsym Print mode default
+}
+bindsym $super+p mode "$screenshot"
+bindsym Print mode "$screenshot"
+
+# Password menu.
+bindsym $super+Shift+p exec pkill wmenu || ~/.config/sway/scripts/passage-wmenu
+
+# Brightness control.
+set $brightness_notification ~/.config/sway/scripts/brightness-notification
+bindsym XF86MonBrightnessDown exec 'brightnessctl set 5%- && $brightness_notification'
+bindsym XF86MonBrightnessUp exec 'brightnessctl set 5%+ && $brightness_notification'
+
+# Volume control.
+set $volume_notification ~/.config/sway/scripts/volume-notification
+bindsym --locked XF86AudioLowerVolume exec 'wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%- && $volume_notification'
+bindsym --locked XF86AudioRaiseVolume exec 'wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+ && $volume_notification'
+bindsym --locked XF86AudioMute exec 'wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && $volume_notification'
+bindsym --locked XF86AudioMicMute exec 'wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle'
+
+# Media control.
+set $media_notification ~/.config/sway/scripts/media-notification
+bindsym --locked XF86AudioPlay exec 'playerctl play-pause && $media_notification'
+bindsym --locked XF86AudioPause exec 'playerctl play-pause && $media_notification'
+bindsym --locked XF86AudioNext exec 'playerctl next && $media_notification'
+bindsym --locked XF86AudioPrev exec 'playerctl previous && $media_notification'
+
+### Misc.
+
+include colorscheme
+
+#                       Border Bg     Fg     Indicator Child_border
+client.focused          $base5 $base5 $baseF $base4 $base4
+client.focused_inactive $base3 $base3 $baseC $base2 $base2
+client.unfocused        $base3 $base3 $baseC $base2 $base2
+client.urgent           $red1  $red1  $baseF $base8 $base8
+# client.placeholder      $base0 $base0 $base5 $base0 $base0
+# client.background       $baseF
+
+bar {
+    position top
+    status_command i3status-rs
+
+    colors {
+        background $base0
+        separator  $base6
+        statusline $baseF
+
+        #                   Border   Bg       Fg
+        focused_workspace   $base7   $base6   $baseF
+        active_workspace    $base4   $base3   $baseC
+        inactive_workspace  $base4   $base3   $baseC
+        urgent_workspace    $red1    $red0    $baseF
+        binding_mode        $yellow1 $yellow0 $baseF
+    }
+}
+
+
+# Set GTK themes.
+set $gnome-schema org.gnome.desktop.interface
+
+exec_always {
+    gsettings set $gnome-schema color-scheme "prefer-dark"
+    gsettings set $gnome-schema enable-animations "false"
+}
+
+exec_always mako
+exec_always blueman-applet
+exec_always nm-applet --indicator
+# exec_always ~/sway/scripts/clamshell
+
+include /etc/sway/config.d/*
+include ~/.config/sway/`hostname`
+include ~/.config/sway/config_local

@@ -1,0 +1,41 @@
+#navigator-toolbox {
+  display: flex;
+  flex-direction: column;
+}
+
+#nav-bar {
+  order: -1;
+  background-color: #202020 !important;
+}
+
+#TabsToolbar {
+  margin-top: -1px !important;
+  background-color: #1b1b1b !important;
+}
+
+#urlbar-background {
+  background-color: #0a0a0a !important;
+}
+
+#urlbar-input {
+  color: #ffffff !important;
+}
+
+/* Unselected tab color */
+.tabbrowser-tab {
+  --tab-background-color: #2e2e2e !important;
+}
+
+.tabbrowser-tab:hover {
+  background-color: #3e3e3e !important;
+}
+
+/* Selected tab color */
+.tabbrowser-tab[selected] {
+  --tab-background-color: #005C80 !important;
+}
+
+/* Apply custom tab colors */
+.tab-background {
+  background-color: var(--tab-background-color) !important;
+}

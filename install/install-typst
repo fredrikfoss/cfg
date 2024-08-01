@@ -1,0 +1,12 @@
+#!/bin/bash
+
+yn() {
+	read -p "$1 [y/N]: " -n 1 -r
+	printf '\n'
+	[[ $REPLY =~ ^[yY]$ ]]
+}
+
+printf 'cargo can install a development version of typst.\n'
+
+yn "run 'cargo install --git https://github.com/typst/typst --locked typst-cli'?" &&
+	cargo install --git https://github.com/typst/typst --locked typst-cli

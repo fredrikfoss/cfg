@@ -1,0 +1,20 @@
+#!/bin/sh
+# https://github.com/swaywm/sway/wiki#clamshell-mode
+
+LAPTOP_OUTPUT="ePD-1"
+LID_STATE_FILE="/proc/acpi/button/lid/LID0/state" # TODO: find correct path
+
+read -r LS <"$LID_STATE_FILE"
+
+case "$LS" in
+*open)
+	swaymsg output "$LAPTOP_OUTPUT" enable
+	;;
+*closed)
+	swaymsg output "$LAPTOP_OUTPUT" disable
+	;;
+*)
+	printf 'Could not get lid state\n' >&2
+	exit 1
+	;;
+esac

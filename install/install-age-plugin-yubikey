@@ -1,0 +1,17 @@
+#!/bin/bash
+
+yn() {
+	read -p "$1 [y/N]: " -n 1 -r
+	printf '\n'
+	[[ $REPLY =~ ^[yY]$ ]]
+}
+
+yn "run
+sudo dnf5 install pcsc-lite
+sudo dnf5 install pcsc-lite-devel
+cargo install age-plugin-yubikey
+?" && {
+	sudo dnf5 install pcsc-lite
+	sudo dnf5 install pcsc-lite-devel
+	cargo install age-plugin-yubikey
+}

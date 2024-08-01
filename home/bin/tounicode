@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Convert colon-enclosed keywords to corresponding Unicode symbols in text
+# files or stdin.
+
+declare -A unicode
+
+unicode[elementof]=∈
+unicode[sum]=Σ
+unicode[and]=∧
+unicode[or]=∨
+unicode[times]=×
+unicode[notelementof]=∉
+unicode[infinity]=∞
+unicode[leftarrow]=←
+unicode[rightarrow]=→
+unicode[graduation]=🎓
+unicode[briefcase]=💼
+unicode[office]=🏢
+unicode[mail]=📫
+unicode[multiply]=×
+unicode[divide]=÷
+unicode[notequal]=≠
+unicode[link]=🔗
+
+tounicode() {
+	local in=/dev/stdin
+	local out=/dev/stdout
+	local file=$1
+	if [[ -n $file ]]; then
+		in=$file
+		out=$(mktemp)
+	fi
+	IFS=$'\n'
+	while read -r line; do
+		for k in "${!unicode[@]}"; do
+			line=${line//:$k:/${unicode[$k]}}
+		done
+		echo "$line" >>"$out"
+	done <"$in"
+	if [[ -n $file ]]; then
+		cp "$out" "$file"
+		rm "$out"
+	fi
+}
+
+tounicode "$@"

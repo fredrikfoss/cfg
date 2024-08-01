@@ -1,0 +1,3 @@
+! test -t 1 && {
+	echo "stdout is not connected to a terminal"
+}

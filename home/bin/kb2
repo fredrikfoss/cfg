@@ -1,0 +1,23 @@
+#!/bin/bash
+set -euo pipefail
+
+# Open file in editor by selecting from all markdown document titles under
+# directory
+
+for cmd in fd rg fzf glow; do
+	if ! type $cmd &>/dev/null; then
+		echo "requires $cmd" >&2
+		exit 1
+	fi
+done
+
+PREFIX=${ZETDIR:-.}
+
+selected_file=$(
+	cd "$PREFIX"
+	fd -t f -e md -e adoc -X rg -H -m 1 '^(#|=) ' |
+		fzf --height 40% --reverse +m --with-nth 2.. |
+		cut -d ':' -f 1
+)
+
+exec echo "$selected_file"

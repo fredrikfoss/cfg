@@ -1,0 +1,43 @@
+# Source: https://github.com/biox/pa/blob/main/pa
+
+glob() {
+	# This is a simple wrapper around a case statement to allow
+	# for simple string comparisons against globs.
+	#
+	# Example: if glob "Hello World" '* World'; then
+	#
+	# Disable this warning as it is the intended behavior.
+	# shellcheck disable=2254
+	case $1 in $2) return 0 ;; esac
+	return 1
+}
+
+yn() {
+	printf '%s [y/N]: ' "$1"
+
+	# Enable raw input to allow for a single byte to be read from
+	# stdin without needing to wait for the user to press Return.
+	[ -t 0 ] && stty -echo -icanon
+
+	# Read a single byte from stdin using 'dd'. POSIX 'read' has
+	# no support for single/'N' byte based input from the user.
+	answer=$(dd ibs=1 count=1 2>/dev/null)
+
+	# Disable raw input, leaving the terminal how we *should*
+	# have found it.
+	[ -t 0 ] && stty echo icanon
+
+	printf '%s\n' "$answer"
+
+	# Handle the answer here directly, enabling this function's
+	# return status to be used in place of checking for '[yY]'
+	# throughout this program.
+	glob "$answer" '[yY]'
+}
+
+# Ensure that globbing is disabled
+# to avoid insecurities with word-splitting.
+set -f
+
+yn "Print something?" &&
+	printf 'My guy\n'

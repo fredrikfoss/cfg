@@ -1,0 +1,45 @@
+[project]
+name = "python-project"
+description = "Python project"
+dynamic = ["version"]
+authors = [{ name = "John Doe", email = "johndoe@example.me" }]
+dependencies = []
+requires-python = ">=3.12"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+
+[project.urls]
+repository = "https://github.com/johndoe/myproject"
+Documentation = "https://github.com/johndoe/myproject/blob/main/docs/index.md"
+Changelog = "https://github.com/johndoe/myproject/blob/main/CHANGELOG.md"
+
+[tool.pyprojectx]
+main = ["pdm==2.12.4"] # installs pdm to your project instead of globally
+
+[tool.pdm.dev-dependencies] # or the poetry equivalent
+dev = [
+  "basedpyright", # you can pin the version here if you want, or just rely on the lockfile
+  "ruff",
+]
+
+[tool.basedpyright]
+typeCheckingMode = "all"
+reportImplicitStringConcatenation = false # conflicts with ruff formatter
+
+[tool.ruff]
+respect-gitignore = true
+line-length = 100
+indent-width = 4
+preview = true
+unsafe-fixes = true
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = true
+line-ending = "lf"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"

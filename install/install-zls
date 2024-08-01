@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+declare OS ARCH TARGET_DIR URL
+
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+
+TARGET_DIR="$HOME/.local/bin"
+URL="https://zigtools-releases.nyc3.digitaloceanspaces.com/zls/master/$ARCH-$OS/zls"
+
+mkdir -p "$TARGET_DIR"
+curl -L "$URL" -o "$TARGET_DIR/zls"
+chmod ug+x "$TARGET_DIR/zls"
+
+echo "installed zls to $TARGET_DIR"

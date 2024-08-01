@@ -1,0 +1,7 @@
+set selection-clipboard clipboard
+set recolor-reverse-video true
+set recolor-keephue true
+set incremental-search true
+
+# default is plain, but will be changed to sqlite in time
+set database sqlite

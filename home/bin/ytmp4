@@ -1,0 +1,29 @@
+#!/bin/bash
+
+for cmd in yt-dlp ffmpeg ffprobe; do
+	if ! command -v $cmd &>/dev/null; then
+		echo "requires $cmd" >&2
+		exit 1
+	fi
+done
+
+if [[ $# -lt 1 ]]; then
+	echo "usage: ${0##*/} <url>" >&2
+	exit 1
+fi
+
+exec yt-dlp \
+	--sponsorblock-remove all \
+	--restrict-filenames \
+	--parse-metadata "%(title)s:%(meta_title)s" \
+	--parse-metadata "%(uploader|)s:%(meta_artist)s" \
+	--sub-langs "en.*,no.*" \
+	--embed-subs \
+	--embed-thumbnail \
+	--embed-metadata \
+	--embed-chapters \
+	--ignore-errors \
+	--format "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" \
+	--output "%(title)s.%(ext)s" \
+	--merge-output-format mp4 \
+	"$@"

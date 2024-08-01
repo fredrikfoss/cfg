@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# TODO: tool that takes stdin, and generates an OTP if it finds a otpauth code.
+#
+# oathtool --totp --base32 '645333354353'
+#
+# otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example&algorithm=SHA1&digits=6&period=30

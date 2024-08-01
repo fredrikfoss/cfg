@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ARTIST=$(playerctl metadata artist)
+TITLE=$(playerctl metadata title)
+STATUS=$(playerctl status)
+
+notify_args=(
+	-e
+	-h string:x-canonical-private-synchronous:media
+	-t 800
+)
+
+notify-send "${notify_args[@]}" "$STATUS: $ARTIST - $TITLE"

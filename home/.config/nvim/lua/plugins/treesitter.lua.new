@@ -1,0 +1,69 @@
+-- As of Aug 24 2024, this won't work on Fedora (Asahi) Linux, because of this reason: Neither the
+-- normal fedora package repositories nor the Neovim COPR ship the latest tree-sitter-cli version,
+-- 0.22.6. What is shipped with Fedora is 0.22.5 only, both on 40 and Rawhide at the momement.
+-- `cargo install tree-sitter-cli` doesn't work, and the precompiled binary from
+-- https://github.com/tree-sitter/tree-sitter/releases gives errors when trying to install parsers
+-- with `:TSInstall`. For now, use `master` branch.
+--
+-- Links:
+--   https://github.com/nvim-treesitter/nvim-treesitter/tree/main
+--   https://github.com/seandewar/dotfiles/blob/master/neovim/.config/nvim/plugin/treesitter.lua
+return {
+    {
+        "nvim-treesitter/nvim-treesitter",
+        branch = "main",
+        build = ":TSUpdate",
+        lazy = false,
+        config = function()
+            require("nvim-treesitter").setup({
+                -- Install a minimal set of parsers.
+                -- Others can be installed on-demand with `:TSInstall`.
+                ensure_install = {
+                    -- Following parsers are bundled with Nvim 0.10 itself, and need to be
+                    -- updated by nvim-treesitter so that nvim-treesitter's newer queries do not
+                    -- throw errors with the older Nvim parsers.
+                    "c",
+                    "lua",
+                    "markdown",
+                    "markdown_inline",
+                    "query",
+                    "vim",
+                    "vimdoc",
+
+                    -- These are extra parsers not bundled with Nvim.
+                    "cpp",
+                },
+            })
+
+            vim.api.nvim_create_autocmd("FileType", {
+                group = vim.api.nvim_create_augroup("ConfTreesitter", { clear = true }),
+                callback = function(args)
+                    if not vim.b.ts_highlight then
+                        if pcall(vim.treesitter.start, args.buf) then
+                            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                            vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+                        end
+                    end
+                end,
+            })
+        end,
+    },
+
+    -- Following are plugins that can to some degree replace vim-matchup.
+
+    -- Not yet supporting `main` branch, see https://redd.it/1c747ns.
+    -- {
+    --     "yorickpeterse/nvim-tree-pairs",
+    --     event = "VeryLazy",
+    --     config = function()
+    --         require("tree-pairs").setup()
+    --     end,
+    -- },
+
+    -- {
+    --     "monkoose/matchparen.nvim",
+    --     config = function()
+    --         require("matchparen").setup()
+    --     end,
+    -- },
+}

@@ -1,0 +1,81 @@
+#!/bin/bash
+
+if ! command -v jq &>/dev/null; then
+	echo "requires jq" >&2
+	exit 1
+fi
+
+declare API_KEY=$OPENAI_API_KEY
+declare ENDPOINT=https://api.openai.com/v1/chat/completions
+declare MODEL=gpt-4o
+declare TEMP=0.5
+declare MAX_TOKENS=4096
+
+build_payload() {
+	local system_prompt="You are a researcher's helpful AI assistant. You are precise and \
+thorough, but also very concise, giving dense, stripped down and to the \
+point answers. Do not use markdown syntax, but format your answers in a \
+systematic and readable way, and don't use enclosing backticks."
+	jq -Rs -cn \
+		--arg system_prompt "$system_prompt" \
+		--arg model "$MODEL" \
+		--argjson temp "$TEMP" \
+		--argjson tokens "$MAX_TOKENS" \
+		'{
+            "model": $model,
+            "temperature": $temp,
+            "max_tokens": $tokens,
+            "messages": [
+              {
+                "role": "system",
+                "content": $system_prompt
+              },
+              {
+                "role": "user",
+                "content": []
+              }
+
+            ]
+          }'
+}
+
+fetch_response() {
+	local response payload="$*"
+	response=$(curl -s -X POST "$ENDPOINT" \
+		-H "Authorization: Bearer $API_KEY" \
+		-H "Content-Type: application/json" \
+		--data-binary "$payload")
+
+	local status=$?
+	if [[ $status -ne 0 ]]; then
+		echo "curl failed with status $status" >&2
+		exit 1
+	fi
+
+	echo "$response" | jq -r '.choices[0].message.content'
+}
+
+if [[ $# -eq 0 && -t 0 ]]; then
+	echo "usage: ${0##*/} <query>" >&2
+	exit 1
+fi
+
+payload=$(build_payload)
+
+# Read from stdin if data is being piped
+if [[ ! -t 0 ]]; then
+	content="$(</dev/stdin)"
+	payload=$(jq -c --arg content "$content" \
+		'(.messages[] | select(.role == "user").content) += [{"type": "text", "text": $content}]' \
+		<<<"$payload")
+fi
+
+# Add command line arguments as separate user message if present
+if [[ $# -gt 0 ]]; then
+	content="$*"
+	payload=$(jq -c --arg content "$content" \
+		'.messages[] |= (select(.role == "user").content += [{"type": "text", "text": $content}])' \
+		<<<"$payload")
+fi
+
+fetch_response "$payload"

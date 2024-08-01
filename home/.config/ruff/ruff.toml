@@ -1,0 +1,18 @@
+# Assume Python 3.12
+target-version = "py312"
+
+# Enable application of unsafe fixes
+unsafe-fixes = true
+
+# Enable preview style formatting.
+preview = true
+
+# Path to the cache directory.
+cache-dir = "~/.cache/ruff"
+
+[format]
+# Enable reformatting of code snippets in docstrings.
+docstring-code-format = true
+
+# Use `\n` line endings for all files
+line-ending = "lf"

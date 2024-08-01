@@ -1,0 +1,85 @@
+#!/bin/bash
+set -e
+
+# Install latest release of Go from https://go.dev/dl to ~/.local without
+# requiring root access.
+#
+# Note that the downloaded tar file is not removed and can be found in
+# ~/Downloads.
+
+declare REPO=go.dev/dl
+declare TARGETDIR="$HOME/.local"
+declare OS
+declare ARCH
+declare TEMPDIR
+
+die() {
+	printf '%s: %s.\n' "$(basename "$0")" "$1" >&2
+	exit 1
+}
+
+determine_system() {
+	OS=$(uname -s)
+	case $OS in
+	Linux*) OS=linux ;;
+	Darwin*) OS=darwin ;;
+	esac
+
+	ARCH=$(uname -m)
+	case $ARCH in
+	aarch64) ARCH=arm64 ;;
+	x86_64) ARCH=amd64 ;;
+	esac
+}
+
+verify_checksum() {
+	local expected_sha
+	local actual_sha
+	expected_sha=$(curl -sSL "https://$REPO/?mode=json" |
+		jq -r '.[0].files[]
+			| select(.os == "'"$OS"'")
+			| select(.arch == "'"$ARCH"'")
+			| select(.filename | endswith(".tar.gz"))
+			| .sha256') ||
+		die "unable to fetch sha hash"
+	actual_sha=$(sha256sum "$1" | cut -d ' ' -f 1)
+	if [[ "$expected_sha" != "$actual_sha" ]]; then
+		printf 'sha checksum verification failed\n' >&2
+		printf 'expected: %s\n' "$expected_sha" >&2
+		printf 'actual: %s\n' "$actual_sha" >&2
+		return 1
+	fi
+}
+
+download() {
+	local url
+	local path
+	url="https://$REPO/$(curl -sSL "https://$REPO/?mode=json" |
+		jq -r '.[0].files[]
+			| select(.os == "'"$OS"'")
+			| select(.arch == "'"$ARCH"'")
+			| select(.filename | endswith(".tar.gz"))
+			| .filename')" ||
+		die "unable to fetch download url"
+	path="$HOME/Downloads/${url##*/}"
+	mkdir -p "$HOME/Downloads"
+	curl -# -L "$url" -o "$path"
+	verify_checksum "$path"
+	tar -xf "$path" -C "$TEMPDIR"
+	printf '%s -> %s\n' "$REPO" "$path" >&2
+}
+
+install() {
+	mkdir -p "$TARGETDIR"
+	rm -rf "$TARGETDIR/go"
+
+	mv "$TEMPDIR/go" "$TARGETDIR"
+	printf 'go -> %s/go\n' "$TARGETDIR" >&2
+}
+
+TEMPDIR=$(mktemp -d)
+trap 'rm -rf -- "$TEMPDIR"' EXIT
+
+determine_system
+download
+install

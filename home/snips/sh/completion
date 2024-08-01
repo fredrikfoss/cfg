@@ -1,0 +1,39 @@
+cmds="help usage"
+
+help() {
+	echo "would print help"
+}
+
+usage() {
+	echo "usage: foo [COMMAND|name] [OPTIONS]"
+}
+
+list() {
+	printf "one\ntwo\nthree"
+}
+
+default() {
+	echo "default command"
+}
+
+# ---------------------- bash completion context ---------------------
+
+# add `complete -S foo foo` to bashrc
+
+if test -n "${COMP_LINE}"; then
+	pre="${COMP_LINE##* }"
+	for c in ${cmds:+${cmds} $(list)}; do
+		test -z "${pre}" -o "${c}" != "${c#${pre}}" && echo "$c"
+	done
+	exit
+fi
+
+# ------------------------------- main -------------------------------
+
+cmd="$1"
+test $# -gt 0 && shift
+
+case "$cmd" in
+ls | list) list "$@" ;;
+*) default "$@" ;;
+esac

@@ -1,0 +1,49 @@
+#!/bin/bash
+set -e
+
+# Convert Markdown files in a specified directory to HTML, apply a custom
+# Pandoc template, and start a live preview server with browser-sync
+
+for cmd in pandoc browser-sync; do
+	if ! command -v $cmd &>/dev/null; then
+		echo "requires $cmd" >&2
+		exit 1
+	fi
+done
+
+if [[ $# -lt 1 && -t 0 ]]; then
+	echo "usage: ${0##*/} <directory>" >&2
+	exit 1
+fi
+
+dir=$(mktemp -d)
+cleanup() {
+	rm -rf "$dir"
+}
+trap cleanup EXIT
+
+cp -r "$1"/* "$dir"
+
+find "$dir" -type f -name "*.md" -exec sh -c '
+	for f; do
+		html_file="${f%.md}.html"
+		pandoc -s -f gfm -o "$html_file" "$f" \
+			--mathjax \
+			--highlight-style="$HOME/.config/pandoc/highlight.theme" \
+			--template "$HOME/.config/pandoc/template.html" 2>/dev/null
+  done
+' sh {} +
+
+find "$dir" -type f -name "README.html" -exec sh -c '
+	for f; do
+		mv "$f" "$(dirname "$f")/index.html"
+	done
+' sh {} +
+
+cd "$dir"
+
+exec browser-sync start \
+	--no-notify --no-ui --no-open \
+	--ignore '**/.*' \
+	--extensions="html" \
+	-sw

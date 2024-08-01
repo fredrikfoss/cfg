@@ -1,0 +1,46 @@
+#!/bin/bash
+set -e
+
+# Installs the latest release from a GitHub repository into $TARGETDIR
+# (default: ~/.local) without requiring root access. First argument to script
+# will override $TARGETDIR.
+#
+# Note that the downloaded tar file is not removed and can be found in either
+# ~/Downloads or /tmp.
+
+declare USER=johnkerl
+declare REPO=miller
+declare EXE=mlr
+declare TARGETDIR="${1:-$HOME/.local/bin}"
+
+declare OS ARCH
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+[[ $ARCH = x86_64 ]] && ARCH=amd64
+[[ $ARCH = aarch64 ]] && ARCH=arm64
+
+fetch_latest_release() {
+	local url
+	url=$(curl -s "https://api.github.com/repos/$USER/$REPO/releases/latest" |
+		jq -r '.assets[] | select(.name | test("'"$OS"'.*'"$ARCH"'.*tar.gz$"; "i")) | .browser_download_url')
+	echo "$url"
+}
+
+download_and_extract() {
+	local url path
+	url="$(fetch_latest_release)"
+	[[ -z $url ]] && echo "unable to fetch download URL" >&2 && return 1
+	path="$([[ -d $HOME/Downloads ]] && echo "$HOME/Downloads" || echo /tmp)/${url##*/}"
+	curl -L "$url" -o "$path"
+	tar -xf "$path" -C "$TEMP_DIR"
+	find "$TEMP_DIR" -type f -name "$EXE" ! -path "*completion*" -exec mv -t "$TARGETDIR" {} +
+	chmod +x "$TARGETDIR/$EXE"
+	echo "installed $EXE to $TARGETDIR" >&2
+}
+
+declare TEMP_DIR
+TEMP_DIR=$(mktemp -d)
+trap 'rm -rf -- "$TEMP_DIR"' EXIT
+
+mkdir -p "$TARGETDIR"
+download_and_extract

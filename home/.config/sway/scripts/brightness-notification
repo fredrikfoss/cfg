@@ -1,0 +1,12 @@
+#!/bin/bash
+
+BRIGHTNESS=$(brightnessctl -P get)
+
+notify_args=(
+	-e
+	-h string:x-canonical-private-synchronous:brightness
+	-h "int:value:$BRIGHTNESS"
+	-t 800
+)
+
+notify-send "${notify_args[@]}" "Brightness: $BRIGHTNESS%"

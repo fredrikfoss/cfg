@@ -1,0 +1,58 @@
+#!/bin/bash
+
+set -e
+
+confd="$PDFS"
+cmds=(open help list ls)
+
+help() {
+	echo "usage: ${0##*/} [open|ls|help] [<pdf>]"
+}
+
+open() {
+	pdf="${confd}/${1}"
+	if [[ -f "$pdf" ]]; then
+		command open "$pdf"
+	else
+		echo "Error: $1 not found" >&2
+	fi
+}
+
+list() {
+	while IFS= read -r line; do
+		[[ $line =~ \.pdf$ ]] && echo "$line"
+	done < <(ls -1 "$confd")
+}
+
+# ---------------------- bash completion context ---------------------
+
+# add `complete -C pdf pdf` to bashrc
+
+if [[ -n $COMP_LINE ]]; then
+	line=${COMP_LINE#* }
+	for c in "${cmds[@]}"; do
+		if [[ ${c:0:${#line}} == "${line,,}" ]]; then
+			echo "$c"
+		fi
+	done
+	for p in $(list); do
+		if [[ ${p:0:${#line}} == "${line,,}" ]]; then
+			echo "$p"
+		fi
+	done
+	exit
+fi
+
+# ------------------------------- main -------------------------------
+
+if [[ $# -lt 1 ]]; then
+	help >&2
+	exit 1
+fi
+
+case "$1" in
+help) help ;;
+ls | list) list ;;
+open) open "$2" ;;
+*) open "$1" ;;
+esac

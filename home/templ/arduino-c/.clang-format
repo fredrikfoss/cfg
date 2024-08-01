@@ -1,0 +1,18 @@
+BasedOnStyle: LLVM
+UseTab: Never
+TabWidth: 4
+IndentWidth: 4
+AllowShortEnumsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+AlignAfterOpenBracket: DontAlign
+BreakBeforeBraces: Custom
+ColumnLimit: 120
+BraceWrapping:
+  BeforeElse: true

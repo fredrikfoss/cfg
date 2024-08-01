@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Generate a citation entry from a given URL by fetching the content of the
+# webpage with curl, formatting it with lynx and processing it with jq, before
+# passing it to gpt
+
+for cmd in gpt lynx jq; do
+	if ! type $cmd &>/dev/null; then
+		echo "requires $cmd" >&2
+		exit 1
+	fi
+done
+
+if [[ $# -lt 1 ]]; then
+	echo "usage: ${0##*/} <url>" >&2
+	exit 1
+fi
+
+exec gpt 'Lag en kildeoppføring av den medfølgende teksten. Bruk dette oppsettet:
+
+Forfatter. (år, dato). Tittel. Hentet fra URL.
+
+Eks:
+Olsen, Nils (1999, 3. mai). Hvem var Martin Luther King jr.? Hentet fra http://www.hioa.no/prosjekt/martinlutherking.htm
+
+Hvis noe av informasjonen ikke er tilgjenelig, hopp over det. Returner bare kildeoppføringen, ingenting annet.' \
+	-q "$(
+		lynx \
+			-display_charset=utf-8 \
+			-width=1024 \
+			-nomargins \
+			-nonumbers \
+			-nolist \
+			-dump "$1" | sed 's/   */ /'
+	)"

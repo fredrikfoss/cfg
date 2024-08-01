@@ -1,0 +1,7 @@
+die() {
+	printf '%s: %s.\n' "$(basename "$0")" "$1" >&2
+	exit 1
+}
+
+command -v somerandomcmd >/dev/null 2>&1 ||
+	die "somerandomcmd not found"

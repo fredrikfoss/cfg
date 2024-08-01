@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if ! type identify &>/dev/null; then
+	echo "requires ImageMagick" >&2
+	exit 1
+fi
+
+if [[ $# -lt 1 ]]; then
+	echo "usage: ${0##*/} <image>" >&2
+	exit 1
+fi
+
+identify -format "F$(date -u +%Y%m%d%H%M%SZ -r "$1")-%G.%e" "$@"

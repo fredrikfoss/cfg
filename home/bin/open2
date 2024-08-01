@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Opens what you would expect. If there is no argument passed, it checks
+# if this is a GitHub repo and if so opens it with the gh tool in your
+# browser. Otherwise, it checks if the argument is a file in the current
+# directory and opens it with the default application (xdg-open).
+# Finally, it assumes it is a URL, ensures begins with https:// and
+# opens it in local web browser.

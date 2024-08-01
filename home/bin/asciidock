@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+
+if ! command -v podman &>/dev/null; then
+	echo "requires podman" >&2
+	exit 1
+fi
+
+exec podman run \
+	--rm \
+	--privileged \
+	--volume "$(pwd):/documents" \
+	docker.io/asciidoctor/docker-asciidoctor \
+	asciidoctor \
+	-a stem \
+	-a reproducible \
+	-a nofooter \
+	-a source-highlighter=rouge \
+	"$@"

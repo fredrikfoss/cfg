@@ -1,0 +1,15 @@
+[style.command_name]
+foreground = { ansi = 9 }
+
+[style.example_text]
+foreground = "green"
+
+[style.example_code]
+foreground = { ansi = 9 }
+
+[style.example_variable]
+foreground = { ansi = 9 }
+bold = true
+
+[display]
+compact = true

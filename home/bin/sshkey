@@ -1,0 +1,64 @@
+#!/bin/bash
+set -e
+
+declare typ=ed25519
+declare rounds=100
+declare confd="$HOME/.ssh"
+declare commands=(gen pub ls help)
+
+cmd_gen() {
+	local name=${1:-$(date -u +%Y%m%d%H%M%SZ)_ed25519}
+	ssh-keygen -t "$typ" -a "$rounds" -f "$confd/$name" -C "$name"
+}
+
+cmd_pub() {
+	local name="$1"
+	[[ -e $confd/$name.pub ]] || return 1
+	cat "$confd/$name.pub"
+}
+
+cmd_ls() {
+	while read -r line; do
+		line=${line##*/}
+		echo "${line%.pub}"
+	done <<-EOF
+		$(ls -1 "$confd"/*.pub)
+	EOF
+}
+
+cmd_help() {
+	cat <<-EOF
+		usage:
+		    ${0##*/} [command]
+
+		commands:
+		    gen [name] # generate new key
+		    pub <name> # print public key
+		    ls         # list keys
+		    help       # print help
+	EOF
+}
+
+# ---------------------- bash completion context ---------------------
+
+# add `complete -C sshkey sshkey` to bashrc
+
+if [[ -n $COMP_LINE ]]; then
+	line=${COMP_LINE##* }
+	for cmd in "${commands[@]}" "$(cmd_ls)"; do
+		[[ ${cmd:0:${#line}} == "${line,,}" ]] && echo "$cmd"
+	done
+	exit
+fi
+
+# ------------------------------- main -------------------------------
+
+cmd="$1"
+[[ $# -gt 0 ]] && shift
+
+case "$cmd" in
+gen) cmd_gen "$@" ;;
+pub) cmd_pub "$@" ;;
+ls) cmd_ls ;;
+*) cmd_help ;;
+esac

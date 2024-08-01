@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+
+# Opens what you would expect. If there is no argument passed, it checks
+# if this is a GitHub repo and if so opens it with the gh tool in your
+# browser. Otherwise, it checks if the argument is a file in the current
+# directory and opens it with the default application (xdg-open).
+# Finally, it assumes it is a URL, ensures begins with https:// and
+# opens it in local web browser.
+
+use v5.14;
+$_ = shift;
+$| = 1;
+
+# git repo
+unless ($_) {
+    my $gh = ( grep { /github/ && s,git@,, && s,:,/, && s/\.git$// }
+          qx{git remote get-url --all origin} )[0];
+    if ($gh) {
+        system 'gh', 'repo', 'view', '--web';
+        exit;
+    }
+    exit 1;
+}
+
+# markdown file
+if (/\.md$/) {
+    if ( not `which pandoc 2>/dev/null` ) {
+        say "pandoc not found";
+        exit 1;
+    }
+    if ( not `which lynx 2>/dev/null` ) {
+        say "lynx not found";
+        exit 1;
+    }
+    `pandoc -s -o /tmp/index.html $_ 2>/dev/null`;
+    system 'lynx', '/tmp/index.html';
+    exit;
+}
+
+# file
+if ( -r $_ ) {
+    `which xdg-open 2>/dev/null`      && exec 'xdg-open',      $_;
+    `which /usr/bin/open 2>/dev/null` && exec '/usr/bin/open', $_;
+    `which explorer.exe 2>/dev/null`  && exec 'explorer.exe',  $_;
+    say "unable to open file: $_";
+    exit 1;
+}
+
+# bare url
+m,^http, or s,^,https://,;
+# `which lynx 2>/dev/null`          && exec 'lynx',          $_;
+`which /usr/bin/open 2>/dev/null` && exec '/usr/bin/open', $_;
+`which explorer.exe 2>/dev/null`  && exec 'explorer.exe',  $_;
+`which firefox 2>/dev/null`       && exec 'firefox',       $_;
+`which google-chrome 2>/dev/null` && exec 'google-chrome', $_;
+my $firefox = '/System/Applications/Firefox.app';
+`which $firefox 2>/dev/null` && exec "$firefox", "$_";
+
+say "unable to determine how to open $_";

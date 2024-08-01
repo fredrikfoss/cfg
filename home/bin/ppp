@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Paste
+
+cat /tmp/buf
