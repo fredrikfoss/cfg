@@ -12,6 +12,6 @@
 - <https://stackoverflow.com/q/78791451>
 - <https://github.com/rileyrg/linux-init>
 - <https://github.com/seandewar/dotfiles>
-- <https://github.com/jla2000/nixos-dotfiles>
+- <https://github.com/jla2000/nixos-dotfiles> (nice example of nvim lz.n + nix and disable-builtins)
 - <https://github.com/maximbaz/dotfiles>
 - <https://git.sr.ht/~whynothugo/dotfiles>

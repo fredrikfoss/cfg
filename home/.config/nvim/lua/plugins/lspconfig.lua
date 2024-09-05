@@ -16,11 +16,11 @@ return {
                 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
                 vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
                 vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
-                -- vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, opts)
-                -- vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, opts)
-                -- vim.keymap.set("n", "<space>wl", function()
-                --     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-                -- end, opts)
+                vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, opts)
+                vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, opts)
+                vim.keymap.set("n", "<leader>wl", function()
+                    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+                end, opts)
             end,
         })
 

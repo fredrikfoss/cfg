@@ -4,8 +4,9 @@ return {
         lazy = true,
         config = function()
             require("mason").setup({
-                pip = { upgrade_pip = true },
-                ui = { border = "single" },
+                ui = {
+                    border = "single",
+                },
             })
         end,
     },
