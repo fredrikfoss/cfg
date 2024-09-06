@@ -49,11 +49,11 @@ output eDP-1 {
 }
 
 exec_always killall swayidle; swayidle -w \
-    timeout 900 'playerctl -a pause; swaylock -f -c 000000' \
-    timeout 1200 'swaymsg "output * power off"' \
-    resume 'swaymsg "output * power on"' \
-    before-sleep 'playerctl -a pause; swaylock -f -c 000000' \
-    lock 'playerctl -a pause; swaylock -f -c 000000'
+    timeout 20 'if pgrep -x swaylock; then swaymsg "output * power off"; fi' \
+        resume 'swaymsg "output * power on"' \
+    timeout 600 'playerctl -a pause; swaylock -f -c 000000' \
+    timeout 900 'systemctl suspend' \
+    before-sleep 'playerctl -a pause; swaylock -f -c 000000'
 
 ### Key bindings.
 floating_modifier $super normal
@@ -145,7 +145,7 @@ bindsym $super+r mode "Resize"
 set $power_control Power: [L]ock, [E]xit, [S]uspend, [R]eboot, [P]oweroff
 
 mode "$power_control" {
-    bindsym l exec swaylock -f -c 000000, mode default
+    bindsym l exec playerctl -a pause && swaylock -f -c 000000, mode default
     bindsym e exec swaymsg exit, mode default
     bindsym s exec swaymsg exec systemctl suspend, mode default
     bindsym r exec swaymsg exec reboot, mode default
