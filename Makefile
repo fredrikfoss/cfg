@@ -14,8 +14,7 @@ endef
 
 help:
 	@printf "%s\n" \
-		"usage:" \
-		"    make [target]" \
+		"usage: make [target]" \
 		"" \
 		"targets:" \
 		"    <config> # setup single config" \
@@ -36,7 +35,6 @@ bash:
 	$(call SYMLINK,.bashrc)
 	$(call SYMLINK,.inputrc)
 	$(call SYMLINK,.dircolors)
-	$(call SYMLINK,.infokey)
 
 vim:
 	$(call SYMLINK,.vimrc)
@@ -48,5 +46,5 @@ tmux:
 gpg:
 	$(call SYMLINK,.gnupg/gpg.conf)
 
-bin snips templ:
+bin snips tmpls:
 	$(call SYMLINK,$@)

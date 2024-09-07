@@ -1,6 +1,0 @@
-#!/bin/bash
-
-echo "cargo install --locked vhdl_ls"
-echo "When installing the VHDL_LS from crates.io the required vhdl_libraries"
-echo "directory will not be installed automatically and will need to be copied into"
-echo "the parent directory of the VHDL_LS binary manually."

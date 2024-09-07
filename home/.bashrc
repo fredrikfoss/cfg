@@ -1,10 +1,8 @@
 #!/bin/bash
 #shellcheck disable=SC1090
 
-case $- in
-*i*) ;;
-*) return ;;
-esac
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
 
 # ---------------------- local utility functions ---------------------
 
@@ -19,14 +17,8 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_STATE_HOME="$HOME/.local/state"
 
-unset LANGUAGE LC_ALL
-export LANG=C.UTF-8 # or en_US.UTF-8
-export LC_COLLATE=C
-export LC_CTYPE=C.UTF-8
-export LC_MESSAGES=C.UTF-8
-export LC_MONETARY=C.UTF-8
-export LC_NUMERIC=C.UTF-8
-export LC_TIME=C.UTF-8
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
 
 export USER="${USER:-$(whoami)}"
 export GITUSER=fredrikfoss
@@ -34,28 +26,15 @@ export REPOS="$HOME/repo"
 export GHREPOS="$REPOS/github.com/$GITUSER"
 export SNIPPETS="$HOME/snips"
 export LAB="$GHREPOS/lab"
-export HELP_BROWSER=lynx
-export DESKTOP="$HOME/Desktop"
-export DOCUMENTS="$HOME/Documents"
-export DOWNLOADS="$HOME/Downloads"
-export TEMPLATES="$HOME/templates"
-export SCRIPTS="$HOME/bin"
-export PICTURES="$HOME/Pictures"
-export MUSIC="$HOME/Music"
-export VIDEOS="$HOME/Videos"
+export TEMPLATES="$GHREPOS/tmpls"
 export PDFS="$GHREPOS/books/docs"
-export BOOKS="$GHREPOS/books/docs"
-export VIRTUALMACHINES="$HOME/VirtualMachines"
-export WORKSPACES="$HOME/Workspaces" # container home dirs for mounting
-export ZETDIR="$GHREPOS/zet"
-export TMPDIR="${XDG_RUNTIME_DIR:-/tmp}"
-export PAGER='less'
-export MANPAGER='less --use-color'
-export FFMPEG_DATADIR="$HOME/.config/ffmpeg"
-export K9SCONFIG="$HOME/.config/k9s"
-export KUBECONFIG="$HOME/.config/kube"
-export KUBECACHEDIR="$HOME/.cache/kube"
 export OLLAMA_MODELS="$HOME/.local/share/ollama/models"
+export ZETDIR="$GHREPOS/zet"
+
+export PAGER='less'
+export LESS="-FR --use-color"
+export LESSHISTFILE=-
+export HELP_BROWSER=lynx
 
 if _have nvim; then
 	export EDITOR='nvim'
@@ -67,6 +46,7 @@ else
 	export EDITOR_PREFIX='vi'
 fi
 
+# FIXME
 export CFLAGS="-Wall -Wextra -Werror -O0 -g -fsanitize=address -fno-omit-frame-pointer -finstrument-functions"
 
 # export GOPATH="$HOME/.local/share/go"
@@ -95,12 +75,9 @@ export ANSIBLE_LOAD_CALLBACK_PLUGINS=1
 
 export DOCKER_CONFIG="$HOME/.config/docker"
 export MACHINE_STORAGE_PATH="$HOME/.local/share/docker-machine"
-
 export ARDUINO_CONFIG_FILE="$HOME/.config/arduino/arduino-cli.yaml"
 
-if [[ -d /.vim/spell ]]; then
-	export VIMSPELL=("$HOME/.vim/spell/*.add")
-fi
+export PARALLEL_HOME="$XDG_CONFIG_HOME/parallel"
 
 # ------------------------------- path -------------------------------
 
@@ -113,7 +90,8 @@ pathprepend() {
 		PATH=${PATH/%":$arg"/}
 		export PATH="$arg${PATH:+":$PATH"}"
 	done
-} && export -f pathprepend
+}
+export -f pathprepend
 
 pathappend() {
 	local arg
@@ -124,7 +102,8 @@ pathappend() {
 		PATH=${PATH/%":$arg"/}
 		export PATH="${PATH:+"$PATH:"}$arg"
 	done
-} && export -f pathappend
+}
+export -f pathappend
 
 pathprepend \
 	"$HOME/.local/go/bin" \
@@ -144,8 +123,6 @@ pathappend \
 	/sbin \
 	/bin
 
-# ------------------------------- cdpath -----------------------------
-
 export CDPATH=".:$GHREPOS:$REPOS:/media/$USER:/run/media/$USER:$HOME"
 
 # --------------------------- shell options --------------------------
@@ -164,6 +141,8 @@ shopt -s no_empty_cmd_completion # do not TAB expand empty lines
 # umask 002
 # umask 027
 umask 022
+
+stty -ixon # disable control-s/control-q tty flow control
 
 # ------------------------------ history -----------------------------
 
@@ -190,21 +169,6 @@ export GPG_TTY
 export PA_LENGTH=25
 export PA_PATTERN='[:graph:]'
 
-# ------------------------------- pager ------------------------------
-
-if [[ -x /usr/bin/src-hilite-lesspipe.sh ]]; then
-	export LESSOPEN="|/usr/bin/src-hilite-lesspipe.sh %s"
-elif [[ -x /usr/bin/lesspipe.sh ]]; then
-	export LESSOPEN="||/usr/bin/lesspipe.sh %s"
-elif [[ -x /usr/bin/lesspipe ]]; then
-	export LESSOPEN="|/usr/bin/lesspipe %s"
-	export LESSCLOSE="/usr/bin/lesspipe %s %s"
-fi
-
-# export LESS="-FR --use-color"
-export LESS="-FR"
-export LESSHISTFILE=-
-
 # ----------------------------- dircolors ----------------------------
 
 if _have dircolors; then
@@ -215,31 +179,22 @@ if _have dircolors; then
 	fi
 fi
 
-# -------------------------- stty annoyances -------------------------
-
-stty -ixon # disable control-s/control-q tty flow control
-
 # ------------------------------ prompt ------------------------------
 
 __ps1() {
-	local prompt='$'
-	local obrack='['
-	local cbrack=']'
-	local at='@'
-	local dir="${PWD##*/}"
-	local red='\[\e[91m\]'
-	local green='\[\e[92m\]'
-	local blue='\[\e[94m\]'
 	local reset='\[\e[0m\]'
+	local green='\[\e[92m\]'
+	local red='\[\e[91m\]'
+	local blue='\[\e[94m\]'
 
-	[[ $PWD = / ]] && dir='/'
-	[[ $PWD = "$HOME" ]] && dir='~'
-	[[ $EUID == 0 ]] && prompt='#' && green=$red
+	local user_color=$green
+	[[ $EUID -eq 0 ]] && user_color=$red
 
-	PS1="${reset}${obrack}${green}\u${at}\h ${blue}${dir}${reset}${cbrack}${prompt}${reset} "
+	PROMPT_DIRTRIM=1
+	PS1="${reset}[${user_color}\u@\h ${blue}\W${reset}]\\\$ "
 }
 
-PROMPT_COMMAND="__ps1"
+PROMPT_COMMAND=__ps1
 
 # ------------------------------ aliases -----------------------------
 
@@ -250,7 +205,6 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 
-alias todo='${EDITOR:-vi} ~/Documents/todo.md'
 alias ip='ip --color=auto'
 alias free='free -h'
 alias ls='ls -hF --color=auto --time-style iso'
@@ -265,9 +219,6 @@ alias temp='cd $(mktemp -d) && pwd'
 alias view='${EDITOR:-vi} -R'
 alias clear='printf "\e[H\e[2J"'
 alias c=clear
-alias more='less'
-alias less='less --use-color'
-alias links='lynx -listonly -nonumbers -dump'
 alias goclean='go clean -i -r -cache -modcache -testcache -fuzzcache'
 
 alias nv='nvim'
@@ -283,47 +234,22 @@ alias convertcurrency='EXCHANGERATE_API_KEY=$(passage exchangerate-api.com/api-k
 
 # ----------------------------- functions ----------------------------
 
-envx() {
-	local envfile="${1:-"$HOME/.env"}"
-	[[ ! -e $envfile ]] && echo "$envfile not found" >&2 && return 1
-	while IFS= read -r line; do
-		name=${line%%=*}
-		value=${line#*=}
-		[[ -z $name || $name =~ ^# ]] && continue
-		export "$name"="$value"
-	done <"$envfile"
-} && export -f envx
-
-if [[ -e $HOME/.env ]]; then
-	envx "$HOME/.env"
-fi
-
 clone() {
-	local repo="$1" user
-	local repo="${repo#https://github.com/}"
-	local repo="${repo#git@github.com:}"
-	[[ $repo =~ / ]] && user="${repo%%/*}"
-	[[ -z $user ]] && user="$GITUSER"
-	[[ -z $user ]] && user="$USER"
+	local repo="${1#*github.com[/:]}"
+	local user="${repo%%/*}"
 	local name="${repo##*/}"
-	local userd="$REPOS/github.com/$user"
-	local path="$userd/$name"
-	[[ -d $path ]] && cd "$path" && return
-	mkdir -p "$userd"
-	cd "$userd"
-	echo gh repo clone "$user/$name" -- --recurse-submodule
-	gh repo clone "$user/$name" -- --recurse-submodule
-	cd "$name"
-} && export -f clone
 
-# fedoraupdate() {
-# 	local commands=("check" "clean all" "makecache" "check-upgrade"
-# 		"upgrade" "distro-sync" "autoremove" "makecache")
-# 	for cmd in "${commands[@]}"; do
-# 		IFS=' ' read -r -a cmd_args <<<"$cmd"
-# 		sudo dnf5 -y "${cmd_args[@]}"
-# 	done
-# } && export -f fedoraupdate
+	[[ $repo =~ / ]] || user="${GITUSER:-$USER}"
+
+	local path="$REPOS/github.com/$user/$name"
+
+	[[ -d $path ]] && cd "$path" && return
+
+	mkdir -p "$REPOS/github.com/$user" && cd "$_" || return 1
+	echo "gh repo clone $user/$name -- --recurse-submodules"
+	gh repo clone "$user/$name" -- --recurse-submodules && cd "$name" || return 1
+}
+export -f clone
 
 # ----------------- external dependencies/completions ----------------
 

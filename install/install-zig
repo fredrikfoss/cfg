@@ -1,11 +1,11 @@
-#!/bin/bash -
+#!/bin/bash
 set -o nounset
 
 # Installs the latest nightly build of zig from https://ziglang.org/download to
 # ~/.local without requiring root access.
 #
-# Note that the downloaded tar file is not removed and can be found in either
-# ~/Downloads or /tmp.
+# Note that the downloaded tar file is not removed and can be found in $TMPDIR
+# or /tmp.
 
 declare REPO=ziglang.org/download
 declare NAME=zig
@@ -15,63 +15,51 @@ declare ARCH
 declare TEMPDIR
 
 die() {
-	printf '%s: %s.\n' "$(basename "$0")" "$1" >&2
+	echo "${0##*/}: $1" >&2
 	exit 1
 }
 
 determine_system() {
-	OS=$(uname -s)
-	case $OS in
+	case $(uname -s) in
 	Linux*) OS=linux ;;
 	Darwin*) OS=macos ;;
-	*) die "unsupported OS $OS" ;;
+	*) die "unsupported os $OS" ;;
 	esac
 
-	ARCH=$(uname -m)
-	case $ARCH in
+	case $(uname -m) in
 	aarch64) ARCH=aarch64 ;;
 	x86_64) ARCH=x86_64 ;;
 	*) die "unsupported arch $ARCH" ;;
 	esac
 }
 
-verify_checksum() {
-	local expected_checksum actual_checksum
-	expected_checksum=$(curl -sSL "https://$REPO/index.json" |
-		jq -r --arg arch "$ARCH" --arg os "$OS" '.master[$arch + "-" + $os].shasum') ||
-		die "Unable to fetch checksum"
-	actual_checksum=$(sha256sum "$1" | cut -d ' ' -f 1)
-	[[ $expected_checksum == "$actual_checksum" ]] ||
-		die "Checksum verification failed: expected $expected_checksum, got $actual_checksum"
-}
-
 download() {
-	local url path
 	url=$(curl -sSL "https://$REPO/index.json" |
-		jq -r --arg arch "$ARCH" --arg os "$OS" '.master[$arch + "-" + $os].tarball') ||
-		die "Unable to fetch download URL"
-	echo "$url"
-	path="$([[ -d $HOME/Downloads ]] && echo "$HOME/Downloads" || echo /tmp)/${url##*/}"
-	echo "$path"
-	curl -L "$url" -o "$path"
-	verify_checksum "$path"
+		jq -r --arg arch "$ARCH" --arg os "$OS" '
+			.master[$arch + "-" + $os].tarball')
+
+	[[ -z $url ]] && die "error fetching download url"
+
+	path=${TMPDIR:-/tmp}/${url##*/}
+	curl -#Lo "$path" "$url"
+
+	TEMPDIR=$(mktemp -d)
+	trap 'rm -rf -- "$TEMPDIR"' EXIT
 	tar -xf "$path" -C "$TEMPDIR"
-	echo "Downloaded tarball to $path" >&2
+
+	echo "$REPO -> $path" >&2
 }
 
 install() {
-	local dir
 	dir=$(find "$TEMPDIR" -mindepth 1 -maxdepth 1 -type d -print -quit)
-	mv "$dir" "$TARGETDIR/$NAME"
-	echo "Installed $NAME to $TARGETDIR" >&2
-}
 
-TEMPDIR=$(mktemp -d)
-trap 'rm -rf -- "$TEMPDIR"' EXIT
+	mkdir -p "$TARGETDIR"
+	rm -rf "${TARGETDIR:?}/$NAME"
+	mv "$dir" "$TARGETDIR/$NAME"
+
+	echo "$NAME/ -> $TARGETDIR/zig/" >&2
+}
 
 determine_system
 download
-
-mkdir -p "$TARGETDIR"
-rm -rf "${TARGETDIR:?}/$NAME"
 install

@@ -1,0 +1,18 @@
+$schema: https://arduino.github.io/arduino-cli/dev/configuration.schema.json
+board_manager:
+  additional_urls: []
+build_cache:
+  compilations_before_purge: 10
+  ttl: 720h0m0s
+daemon:
+  port: "50051"
+directories:
+  # TODO: test if ~ works
+  data: /home/user/.local/share/arduino/data
+  user: /home/user/.local/share/arduino/user
+  # builtin.libraries: /home/user/.local/share/arduino/lib
+  # downloads: /home/user/.cache/arduino/staging
+library:
+  enable_unsafe_install: true
+updater:
+  enable_notification: false

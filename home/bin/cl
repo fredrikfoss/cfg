@@ -9,7 +9,7 @@ MAX_TOKENS="8192"
 TEMPERATURE="0.0"
 
 die() {
-	printf '%s: %s\n' "$(basename "$0")" "$1" >&2
+	echo "${0##*/}: $1" >&2
 	exit 1
 }
 
@@ -26,17 +26,16 @@ usage() {
 
 construct_messages() {
 	local messages='[]'
-	local stdin_prompt
-	local arg_prompt
+	local input
 
 	if [[ ! -t 0 ]]; then
-		stdin_prompt=$(jq -Rs '.' </dev/stdin)
-		messages=$(jq --argjson stdin "$stdin_prompt" '. += [{"type": "text", "text": $stdin}]' <<<"$messages")
+		input=$(jq -Rs '.' </dev/stdin)
+		messages=$(jq --argjson stdin "$input" '. += [{"type": "text", "text": $stdin}]' <<<"$messages")
 	fi
 
 	for arg in "$@"; do
-		arg_prompt=$(jq -Rs '.' <<<"$arg")
-		messages=$(jq --argjson arg "$arg_prompt" '. += [{"type": "text", "text": $arg}]' <<<"$messages")
+		input=$(jq -Rs '.' <<<"$arg")
+		messages=$(jq --argjson arg "$input" '. += [{"type": "text", "text": $arg}]' <<<"$messages")
 	done
 
 	jq -n --argjson messages "$messages" '[{"role": "user", "content": $messages}]'
@@ -46,25 +45,29 @@ create_payload() {
 	local messages="$1"
 	local system_prompt
 
-	system_prompt=$(printf 'Be concise in your answers. Provide code
-		blocks that are complete. Avoid numbered lists, summaries are
-		better. For any technical questions, assume the user has
-		general knowledge in the area.' | tr -s '\n\t' ' ')
+	system_prompt=$(
+		tr -s '\n' ' ' <<-'EOF' | xargs
+			Be concise in your answers. Provide code blocks that are
+			complete. Avoid numbered lists, summaries are better.
+			For any technical questions, assume the user has general
+			knowledge in the area.
+		EOF
+	)
 
 	jq -n \
 		--arg model "$MODEL" \
 		--argjson max_tokens "$MAX_TOKENS" \
 		--argjson temperature "$TEMPERATURE" \
 		--arg system_prompt "$system_prompt" \
-		--argjson messages "$messages" '
-	{
-	  model: $model,
-	  max_tokens: $max_tokens,
-	  temperature: $temperature,
-	  stream: true,
-	  system: $system_prompt,
-	  messages: $messages
-	}'
+		--argjson messages "$messages" \
+		'{
+		  model: $model,
+		  max_tokens: $max_tokens,
+		  temperature: $temperature,
+		  stream: true,
+		  system: $system_prompt,
+		  messages: $messages
+		}'
 }
 
 dry_run() {
@@ -93,18 +96,16 @@ call_api() {
 		-H "content-type: application/json" \
 		--data-binary @- <<<"$payload" |
 		while IFS= read -r line; do
-			case "$line" in
+			case $line in
 			data:*)
-				json_data="${line#data: }"
-				jq -j '.delta.text // empty' <<<"$json_data"
+				jq -j '.delta.text // empty' <<<"${line#data: }"
 				;;
 			event:\ error)
 				read -r error_data
-				error_message=$(jq -r '.error.message' <<<"${error_data#data: }")
-				die "API error: $error_message"
+				die "$(jq -r '.error.message' <<<"${error_data#data: }")"
 				;;
 			event:\ content_block_stop)
-				printf '\n'
+				echo
 				break
 				;;
 			esac
@@ -113,7 +114,7 @@ call_api() {
 }
 
 main() {
-	[[ -z $API_KEY ]] && die "ANTHROPIC_API_KEY is not set"
+	[[ -z $API_KEY ]] && die "ANTHROPIC_API_KEY not set"
 	[[ $# -eq 0 && -t 0 ]] && usage
 
 	case $1 in
@@ -122,11 +123,13 @@ main() {
 		;;
 	-d)
 		shift
+		local messages payload
 		messages=$(construct_messages "$@")
 		payload=$(create_payload "$messages")
 		dry_run "$payload"
 		;;
 	*)
+		local messages payload
 		messages=$(construct_messages "$@")
 		payload=$(create_payload "$messages")
 		call_api "$payload"

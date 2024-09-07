@@ -40,8 +40,10 @@ return {
                     natural_order = false,
                 },
                 win_options = {
-                    signcolumn = vim.wo.signcolumn,
-                    number = vim.wo.number,
+                    -- signcolumn = vim.wo.signcolumn,
+                    -- number = vim.wo.number,
+                    number = false,
+                    cursorline = true,
                 },
                 float = { border = "single" },
                 preview = { border = "single" },

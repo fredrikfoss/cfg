@@ -1,25 +1,42 @@
-# https://alacritty.org/config-alacritty.html
-
-import = ["~/.config/alacritty/theme.toml"]
-
-# [colors]
-# draw_bold_text_with_bright_colors = true
-
 [window]
-dimensions = { columns = 130, lines = 40 }
-dynamic_padding = true
-decorations = "None"                       # "Full" | "None"
+decorations = "None"
 dynamic_title = false
 
 [scrolling]
 history = 100000
 
 [font]
-size = 12.6
-offset = { x = 0, y = 0 }
-glyph_offset = { x = 0, y = 0 }
 # normal = { family = "Monospace", style = "Regular" }
 normal = { family = "Berkeley Mono", style = "Regular" }
+size = 12.6
 
 [cursor]
 style = { shape = "Block", blinking = "Off" }
+
+[colors.cursor]
+text = "#000000"
+cursor = "#ffffff"
+
+[colors.primary]
+background = "#1a1a1a"
+foreground = "#cfcfcf"
+
+[colors.normal]
+black = "#000000"
+red = "#dc3c3c"
+green = "#95c76f"
+yellow = "#d28e5d"
+blue = "#8485ce"
+magenta = "#b73999"
+cyan = "#00aba5"
+white = "#666666"
+
+[colors.bright]
+black = "#4a4a4a"
+red = "#ff7c7c"
+green = "#d5ffaf"
+yellow = "#ffce9d"
+blue = "#c4c5ff"
+magenta = "#f779d9"
+cyan = "#40ebe5"
+white = "#ffffff"

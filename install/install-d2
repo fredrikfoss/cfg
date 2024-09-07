@@ -7,72 +7,67 @@ set -e
 # Note that the downloaded tar file is not removed and can be found in either
 # ~/Downloads or /tmp.
 
-declare REPO_OWNER=terrastruct
-declare REPO_NAME=d2
-declare EXE_NAME=d2
-declare EXE_TARGETDIR="$HOME/.local/bin"
-declare MAN_NAME=d2.1
-declare MAN_TARGETDIR="$HOME/.local/share/man/man1"
-declare OS ARCH
+declare REPO=terrastruct/d2
+declare NAME_EXE=d2
+declare NAME_MAN=d2.1
+declare TARGETDIR_EXE="$HOME/.local/bin"
+declare TARGETDIR_MAN="$HOME/.local/share/man/man1"
+
+declare OS
+declare ARCH
 declare TEMPDIR
 
 die() {
-	echo "$@" >&2
+	printf '%s: %s\n' "${0##*/}" "$1" >&2
 	exit 1
 }
 
-init_os() {
-	OS=$(uname -s)
-	case $OS in
+determine_system() {
+	case $(uname -s) in
 	Linux*) OS=linux ;;
 	Darwin*) OS=macos ;;
-	MINGW* | MSYS*) OS=windows ;;
+	*) die "unsupported OS" ;;
 	esac
-}
 
-init_arch() {
-	ARCH=$(uname -m)
-	case $ARCH in
+	case $(uname -m) in
 	aarch64) ARCH=arm64 ;;
-	arm64) ARCH=arm64 ;;
 	x86_64) ARCH=amd64 ;;
+	*) die "unsupported architecture" ;;
 	esac
 }
 
 download() {
-	local url path
-	url=$(curl -sSL "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest" |
-		jq -r '.assets[]
-			| select(.name | test("'"$OS"'.*'"$ARCH"'.*tar.gz$"; "i"))
-			| .browser_download_url') ||
-		die "unable to fetch download URL"
-	path="$([[ -d $HOME/Downloads ]] && echo "$HOME/Downloads" || echo /tmp)/${url##*/}"
-	curl -L "$url" -o "$path"
+	url=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest" |
+		jq -r --arg os "$OS" --arg arch "$ARCH" '
+			.assets[] |
+			select(.name | contains($os) and contains($arch) and endswith(".tar.gz")) |
+			.browser_download_url')
+
+	[[ -z $url ]] && die "error fetching download url"
+
+	path="$HOME/Downloads/${url##*/}"
+	mkdir -p "$HOME/Downloads"
+	curl -#Lo "$path" "$url"
+
+	TEMPDIR=$(mktemp -d)
+	trap 'rm -rf -- "$TEMPDIR"' EXIT
 	tar -xf "$path" -C "$TEMPDIR"
-	echo "downloaded $REPO_OWNER/$REPO_NAME to $path" >&2
+
+	printf '%s -> %s\n' "$REPO" "$path" >&2
 }
 
-install_exe() {
-	find "$TEMPDIR" -type f -name "$EXE_NAME" ! -path "*completion*" -exec mv -t "$EXE_TARGETDIR" {} +
-	chmod +x "$EXE_TARGETDIR/$EXE_NAME"
-	echo "installed $EXE_NAME to $EXE_TARGETDIR" >&2
+install() {
+	mkdir -p "$TARGETDIR_EXE"
+	find "$TEMPDIR" -type f -name "$NAME_EXE" -exec mv -t "$TARGETDIR_EXE" {} + ||
+		die "error moving executable"
+	printf '%s -> %s\n' "$NAME_EXE" "$TARGETDIR_EXE/$NAME_EXE" >&2
+
+	mkdir -p "$TARGETDIR_MAN"
+	find "$TEMPDIR" -type f -name "$NAME_MAN" -exec mv -t "$TARGETDIR_MAN" {} + ||
+		die "error moving man page"
+	printf '%s -> %s\n' "$NAME_MAN" "$TARGETDIR_MAN/$NAME_MAN" >&2
 }
 
-install_man() {
-	find "$TEMPDIR" -type f -name "$MAN_NAME" ! -path "*completion*" -exec mv -t "$MAN_TARGETDIR" {} +
-	chmod +x "$MAN_TARGETDIR/$MAN_NAME"
-	echo "installed $MAN_NAME to $EXE_TARGETDIR" >&2
-}
-
-TEMPDIR=$(mktemp -d)
-trap 'rm -rf -- "$TEMPDIR"' EXIT
-
-init_os
-init_arch
+determine_system
 download
-
-mkdir -p "$EXE_TARGETDIR"
-install_exe
-
-mkdir -p "$MAN_TARGETDIR"
-install_man
+install

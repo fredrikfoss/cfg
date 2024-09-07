@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Install latest development version of visidata from
+# https://github.com/saulpw/visidata with uv.
+
+yn() {
+	read -p "$1 [y/N]: " -n 1 -r
+	echo
+	[[ $REPLY =~ ^[yY]$ ]]
+}
+
+yn "run 'uv tool install --from git+https://github.com/saulpw/visidata.git@develop visidata'?" &&
+	uv tool install --from git+https://github.com/saulpw/visidata.git@develop visidata

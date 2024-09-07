@@ -1,0 +1,20 @@
+#!/bin/bash
+
+html2links() {
+	local url=$1
+	curl -fI "$url" &>/dev/null || {
+		echo "${0##*/}: unabled to resolve $url" >&2
+		return 1
+	}
+	lynx -dump -listonly -nonumbers -hiddenlinks=merge "$url"
+
+}
+
+[[ $# -lt 1 || $1 == -h ]] && {
+	echo "usage: ${0##*/} <url> [<url> ...]" >&2
+	exit 1
+}
+
+for url in "$@"; do
+	html2links "$url"
+done

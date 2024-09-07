@@ -20,5 +20,6 @@ return {
         vim.api.nvim_set_hl(0, "ModeMsg", { link = "Normal" })
         vim.api.nvim_set_hl(0, "StatusLine", { link = "StatuslineNC" })
         vim.api.nvim_set_hl(0, "Title", { link = "Bold" })
+        vim.api.nvim_set_hl(0, "Visual", { reverse = true })
     end,
 }

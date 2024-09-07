@@ -3,5 +3,5 @@ die() {
 	exit 1
 }
 
-command -v somerandomcmd >/dev/null 2>&1 ||
+command -v somerandomcmd &>/dev/null ||
 	die "somerandomcmd not found"

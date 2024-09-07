@@ -39,6 +39,7 @@ return {
                 -- These are extra parsers not bundled with Nvim.
                 "arduino",
                 "asm",
+                "awk",
                 "bash",
                 "cpp",
                 "diff",

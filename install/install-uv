@@ -14,51 +14,52 @@ declare OS
 declare TEMPDIR
 
 die() {
-	printf '%s: %s.\n' "$(basename "$0")" "$1" >&2
+	echo "${0##*/}: $1" >&2
 	exit 1
 }
 
 determine_system() {
-	OS=$(uname -s)
-	case $OS in
+	case $(uname -s) in
 	Linux*) OS=unknown-linux-gnu ;;
 	Darwin*) OS=apple-darwin ;;
+	*) die "unsupported os" ;;
 	esac
 
-	ARCH=$(uname -m)
-	case $ARCH in
+	case $(uname -m) in
 	aarch64) ARCH=aarch64 ;;
 	x86_64) ARCH=x86_64 ;;
+	*) die "unsupported arch" ;;
 	esac
 }
 
 download() {
-	local url
-	local path
 	url=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest" |
-		jq -r '.assets[]
-			| select(.name | test("'"$ARCH"'.*'"$OS"'.*tar.gz$"; "i"))
-			| .browser_download_url') ||
-		die "unable to fetch download url"
-	path="$HOME/Downloads/${url##*/}"
-	mkdir -p "$HOME/Downloads"
-	curl -# -L "$url" -o "$path"
+		jq -r --arg os "$OS" --arg arch "$ARCH" '
+			.assets[] |
+			select(.name | contains($os) and contains($arch) and endswith(".tar.gz")) |
+			.browser_download_url')
+
+	[[ -z $url ]] && die "error fetching download url"
+
+	path=${TMPDIR:-/tmp}/${url##*/}
+	curl -#Lo "$path" "$url"
+
+	TEMPDIR=$(mktemp -d)
+	trap 'rm -rf -- "$TEMPDIR"' EXIT
 	tar -xf "$path" -C "$TEMPDIR"
-	printf 'github.com/%s -> %s\n' "$REPO" "$path" >&2
+
+	echo "$REPO -> $path" >&2
 }
 
 install() {
 	mkdir -p "$TARGETDIR"
 
 	mv "$TEMPDIR/uv-$ARCH-$OS/uv" "$TARGETDIR"
-	printf 'uv -> %s/uv\n' "$TARGETDIR" >&2
+	echo "uv -> $TARGETDIR/uv" >&2
 
 	mv "$TEMPDIR/uv-$ARCH-$OS/uvx" "$TARGETDIR"
-	printf 'uvx -> %s/uvx\n' "$TARGETDIR" >&2
+	echo "uvx -> $TARGETDIR/uvx" >&2
 }
-
-TEMPDIR=$(mktemp -d)
-trap 'rm -rf -- "$TEMPDIR"' EXIT
 
 determine_system
 download

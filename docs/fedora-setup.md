@@ -1,6 +1,6 @@
 # Fedora Minimal Setup
 
-TODO: Fix this mess.
+FIXME: Everything.
 
 Set up a Linux development environment with Fedora Minimal, Wayland and Sway.
 
@@ -128,6 +128,7 @@ sudo dnf5 -y install libavcodec-freeworld
 ### Development
 
 ```sh
+sudo dnf5 install moreutils
 sudo dnf5 install java-latest-openjdk
 sudo dnf5 install lua
 sudo dnf5 install go
@@ -150,7 +151,24 @@ sudo dnf5 install ghdl
 - Ansible
 - Nix
 
-Sources:
+## Locales
+
+TODO: Look into further.
+
+Set locales settings. See <https://wiki.archlinux.org/title/Locale>.
+
+Which one: <https://sourceware.org/glibc/wiki/Proposals/C.UTF-8>.
+
+```
+localectl set-locale C.UTF-8
+```
+
+See:
+  - `/etc/locale.conf`
+  - locale(7)
+  - locale(5)
+
+## Related
 
 - <https://redd.it/1ebxxu5>
 - <https://rpmfusion.org/configuration>

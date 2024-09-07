@@ -2,7 +2,7 @@
 
 yn() {
 	read -p "$1 [y/N]: " -n 1 -r
-	printf '\n'
+	echo
 	[[ $REPLY =~ ^[yY]$ ]]
 }
 

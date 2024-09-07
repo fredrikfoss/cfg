@@ -1,10 +1,13 @@
 #!/bin/bash
 
+# Install latest development version of vsg from
+# https://github.com/jeremiah-c-leary/vhdl-style-guide with uv.
+
 yn() {
 	read -p "$1 [y/N]: " -n 1 -r
-	printf '\n'
+	echo
 	[[ $REPLY =~ ^[yY]$ ]]
 }
 
-yn "run 'pipx install --force vsg'?" &&
-	pipx install --force vsg
+yn "run 'uv tool install --from git+https://github.com/jeremiah-c-leary/vhdl-style-guide vsg'?" &&
+	uv tool install --from git+https://github.com/jeremiah-c-leary/vhdl-style-guide vsg

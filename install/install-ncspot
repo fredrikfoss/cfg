@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# TODO: Replace with downloading precompiled binary from github releases.
+
+yn() {
+	read -p "$1 [y/N]: " -n 1 -r
+	echo
+	[[ $REPLY =~ ^[yY]$ ]]
+}
+
+yn "run 'cargo install --locked ncspot'?" &&
+	cargo install --locked ncspot

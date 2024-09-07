@@ -1,7 +1,0 @@
-#!/bin/sh
-
-# Uncomment lines
-
-while IFS= read -r line; do
-	echo "${line#* }"
-done

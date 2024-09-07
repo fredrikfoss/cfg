@@ -2,11 +2,11 @@
 
 yn() {
 	read -p "$1 [y/N]: " -n 1 -r
-	printf '\n'
+	echo
 	[[ $REPLY =~ ^[yY]$ ]]
 }
 
-printf 'cargo can install a development version of typst.\n'
+echo "cargo can install a development version of typst."
 
 yn "run 'cargo install --git https://github.com/typst/typst --locked typst-cli'?" &&
 	cargo install --git https://github.com/typst/typst --locked typst-cli

@@ -1,65 +1,34 @@
-" ---------- Vi compatible (~/.exrc) -----------------------
-
-" set autoindent
-" set expandtab
-" set tabstop=4
-" set ignorecase
-" set autowrite
-" set nonumber
-" set ruler
-" set showmode
-" set noflash
-
-" ---------- Important: ------------------------------------
-"        Designed for Vim 8+
-
-if !has('eval') " vim-tiny lacks eval
-  echo "vim-tiny detected"
-  unlet! skip_defaults_vim
-  source $VIMRUNTIME/defaults.vim
+" Ensure vi compatability is off and avoid side-effects when
+" nocompatible has already been set.
+if &compatible
+  set nocompatible
 endif
 
-set nocompatible        " Don't make vim vi-compatible
-let skip_defaults_vim=1 " Skip defaults.vim
+" Create undo directory if it does not exist yet.
+if !isdirectory(expand('~/.vim/undo'))
+  call mkdir(expand('~/.vim/undo'), 'p', 0700)
+endif
 
-filetype plugin indent on
-if !exists('g:syntax_on') | syntax enable | endif
+" Configure undo and viminfo settings.
+set undofile
+set undodir=~/.vim/undo//
+set undolevels=10000
+set viminfofile=~/.vim/viminfo
+set viminfo='20,<1000,s1000
 
-map <space> <nop>
-map <BS> <nop>
-
-" Leaderkey
-let g:mapleader=' '
-let g:maplocalleader=' '
+" Disable swap and backup files.
+set noswapfile
+set nobackup
 
 " Performance
-set updatecount=0
-" set updatetime=50
-set updatetime=0
-set ttimeoutlen=0
 set notimeout
-" set nottimeout
 set ttimeout
+set ttimeoutlen=0
 set autowrite
 set lazyredraw
 set noshowcmd
 set noshelltemp
 set noesckeys
-
-let undo_dir = expand('~/.vim/undo')
-if !isdirectory(undo_dir)
-  call mkdir(undo_dir, 'p')
-endif
-
-" Undo, backup, swap, viminfo
-set undodir=~/.vim/undo//
-set viminfofile=~/.vim/viminfo
-set undofile
-set undolevels=10000
-set nobackup
-set writebackup
-set noswapfile
-set viminfo='20,<1000,s1000
 
 " Encoding
 set fileformat=unix
@@ -69,7 +38,7 @@ set fixendofline
 set foldmethod=manual
 set nofoldenable
 
-" Indentation
+" Indentation and formatting
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
@@ -78,9 +47,10 @@ set smarttab
 set autoindent
 set smartindent
 set breakindent
-set cinoptions+=:0
 
 " UI
+set display=lastline
+set listchars=space:*,trail:*,nbsp:*,extends:>,precedes:<,tab:\|>
 set nowrap
 set wrapscan
 set wildmenu
@@ -94,10 +64,7 @@ set norelativenumber
 set nrformats=bin,hex
 set signcolumn=no
 set pumheight=6
-set textwidth=72
 set scrolloff=0
-set display=lastline
-set listchars=space:*,trail:*,nbsp:*,extends:>,precedes:<,tab:\|>
 
 " Status line
 set laststatus=1
@@ -124,23 +91,39 @@ set visualbell
 set t_vb=
 set backspace=indent,eol,start
 set noshowmatch
-" set colorcolumn+=1
-" let g:loaded_matchparen=1
-" set nolangremap
 
-" Theme
-" set background=dark
-" set termguicolors
-" set t_Co=256
-" set t_Co=16
-" set t_Co=8
-" set t_md=
-" set t_ZH=
+" Leaderkey
+let g:mapleader=' '
+let g:maplocalleader=' '
+
+map <space> <nop>
+map <BS> <nop>
+
+" Bootstrap plug.vim
+let data_dir = expand('~/.vim')
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  " autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+if filereadable(expand('~/.vim/autoload/plug.vim'))
+  call plug#begin()
+  Plug 'tpope/vim-surround'
+  Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-commentary'
+  Plug 'conradirwin/vim-bracketed-paste'
+  Plug 'ctrlpvim/ctrlp.vim'
+  Plug 'jasonccox/vim-wayland-clipboard'
+  " Plug 'yorickpeterse/happy_hacking.vim'
+  call plug#end()
+endif
+
+filetype plugin indent on
+syntax enable
+
 set background=light
-colorscheme custom
-let c_comment_strings=1
+silent! colorscheme custom
 
-" Color overrides
 autocmd FileType markdown,pandoc highlight Title ctermfg=yellow ctermbg=NONE
 autocmd FileType markdown,pandoc highlight Operator ctermfg=black ctermbg=NONE
 autocmd FileType yaml highlight yamlBlockMappingKey ctermfg=NONE
@@ -150,33 +133,6 @@ autocmd FileType markdown,pandoc match MarkdownQuote '^>.*$'
 
 highlight TrailingWhitespace ctermfg=NONE ctermbg=8
 match TrailingWhitespace /\s\+$/
-
-" Cursor
-" let &t_SI='\e[3 q'
-" let &t_SR='\e[3 q'
-" let &t_EI='\e[3 q'
-" autocmd VimEnter * silent !echo -ne '\e[3 q'
-
-" ---------- Plugins ---------------------------------------
-"  (github.com/junegunn/vim-plug)
-
-let data_dir = expand('~/.vim')
-if empty(glob(data_dir . '/autoload/plug.vim'))
-  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
-if filereadable(expand('~/.vim/autoload/plug.vim'))
-  call plug#begin('~/.local/share/vim/plug')
-    Plug 'tpope/vim-surround'
-    Plug 'tpope/vim-repeat'
-    Plug 'tpope/vim-commentary'
-    Plug 'conradirwin/vim-bracketed-paste'
-    Plug 'ctrlpvim/ctrlp.vim'
-    Plug 'jasonccox/vim-wayland-clipboard'
-    " Plug 'yorickpeterse/happy_hacking.vim'
-  call plug#end()
-endif
 
 " CtrlP
 let g:ctrlp_map='<Leader>e'
@@ -200,14 +156,11 @@ let g:ale_echo_msg_warning_str='W'
 let g:ale_echo_msg_format='[%linter%] %s [%severity%]'
 let g:ale_floating_window_border=repeat([''], 8)
 let g:ale_set_signs=0
-let g:ale_linters={'python': ['flake8'], 'go': ['golangci-lint', 'gofmt', 'gobuild']}
+let g:ale_linters={'sh': ['shellcheck']}
 
 " netrw
-let g:netrw_browse_split=0
 let g:netrw_banner=0
-let g:netrw_winsize=20
 let g:netrw_preview=1
-let g:netrw_liststyle=3
 let g:netrw_keepdir=0
 let g:netrw_localcopydircmd='cp -r'
 

@@ -1,34 +1,20 @@
 #!/bin/bash
 
-# Lynx wrapper. Be sure to install the ca-certificates package
+# Lynx wrapper. Be sure to install the ca-certificates package.
 
-declare lynxpath
-declare lynx_paths=(/usr/bin/lynx /usr/local/bin/lynx /bin/lynx)
+lynxpath=/usr/bin/lynx
 
-for path in "${lynx_paths[@]}"; do
-	if [[ -x $path ]]; then
-		lynxpath="$path"
-		break
-	fi
-done
-
-if [[ -z $lynxpath ]]; then
+[[ -z $lynxpath ]] && {
 	echo "requires lynx" >&2
 	exit 1
-fi
+}
 
-if [[ -f $HOME/.config/lynx/lynx.cfg ]]; then
+[[ -f $HOME/.config/lynx/lynx.cfg ]] &&
 	export LYNX_CFG="$HOME/.config/lynx/lynx.cfg"
-fi
 
-if [[ -f $HOME/.config/lynx/lynx.lss ]]; then
+[[ -f $HOME/.config/lynx/lynx.lss ]] &&
 	export LYNX_LSS="$HOME/.config/lynx/lynx.lss"
-fi
 
-# useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/116.0 Lynx"
-# useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_0) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.79 Safari/537.1 Lynx"
-# useragent="Mozilla/5.0 (X11; CrOS aarch64 15329.44.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Lynx"
-# useragent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Lynx"
 useragent="Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0 Lynx"
 
 exec "$lynxpath" --useragent="$useragent" "$@"

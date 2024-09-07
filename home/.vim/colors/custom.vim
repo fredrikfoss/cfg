@@ -38,7 +38,7 @@ highlight DiffDelete                 ctermfg=0 ctermbg=1
 highlight DiffText                   ctermfg=0 ctermbg=11 cterm=bold
 
 " End of buffer
-highlight EndOfBuffer                ctermfg=8
+highlight link EndOfBuffer           LineNr
 
 " Statusline and vert split
 highlight StatusLine                 ctermfg=15 ctermbg=8 cterm=bold

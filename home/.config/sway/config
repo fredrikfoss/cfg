@@ -1,6 +1,5 @@
 # Use Super (aka Cmd, Windows) as a modifier key.
-set $super Mod4
-set $alt Mod1
+set $mod Mod4
 
 # Font used for window titles (and bar).
 font DejaVu Sans Mono 7
@@ -49,84 +48,84 @@ output eDP-1 {
 }
 
 exec_always killall swayidle; swayidle -w \
-    timeout 20 'if pgrep -x swaylock; then swaymsg "output * power off"; fi' \
+    timeout 10 'if pgrep -x swaylock; then swaymsg "output * power off"; fi' \
         resume 'swaymsg "output * power on"' \
     timeout 600 'playerctl -a pause; swaylock -f -c 000000' \
     timeout 900 'systemctl suspend' \
     before-sleep 'playerctl -a pause; swaylock -f -c 000000'
 
 ### Key bindings.
-floating_modifier $super normal
+floating_modifier $mod normal
 
 # Run terminal with super+Enter.
-bindsym $super+Return exec foot
+bindsym $mod+Return exec foot
 
 # Kill focused window.
-bindsym $super+q kill
+bindsym $mod+q kill
 
 # Start launcher.
 set $menu j4-dmenu-desktop -I -t foot -d 'wmenu -i -l 10 -p "Run:"'
-bindsym $super+d exec pkill wmenu || $menu
+bindsym $mod+d exec pkill wmenu || $menu
 
 # Reload config file.
-bindsym $super+Shift+c reload
+bindsym $mod+Shift+c reload
 
 # Moving focus.
-bindsym $super+h  focus left
-bindsym $super+j  focus down
-bindsym $super+k    focus up
-bindsym $super+l focus right
+bindsym $mod+h  focus left
+bindsym $mod+j  focus down
+bindsym $mod+k    focus up
+bindsym $mod+l focus right
 
 # Moving windows.
-bindsym $super+Shift+h  move left
-bindsym $super+Shift+j  move down
-bindsym $super+Shift+k    move up
-bindsym $super+Shift+l move right
+bindsym $mod+Shift+h  move left
+bindsym $mod+Shift+j  move down
+bindsym $mod+Shift+k    move up
+bindsym $mod+Shift+l move right
 
 # Moving workspaces.
-bindsym $super+1 workspace number 1
-bindsym $super+2 workspace number 2
-bindsym $super+3 workspace number 3
-bindsym $super+4 workspace number 4
-bindsym $super+5 workspace number 5
-bindsym $super+6 workspace number 6
-bindsym $super+7 workspace number 7
-bindsym $super+8 workspace number 8
-bindsym $super+9 workspace number 9
-bindsym $super+0 workspace number 10
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
 
 # Moving windows through workspaces.
-bindsym $super+Shift+1 move container to workspace number 1
-bindsym $super+Shift+2 move container to workspace number 2
-bindsym $super+Shift+3 move container to workspace number 3
-bindsym $super+Shift+4 move container to workspace number 4
-bindsym $super+Shift+5 move container to workspace number 5
-bindsym $super+Shift+6 move container to workspace number 6
-bindsym $super+Shift+7 move container to workspace number 7
-bindsym $super+Shift+8 move container to workspace number 8
-bindsym $super+Shift+9 move container to workspace number 9
-bindsym $super+Shift+0 move container to workspace number 10
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
 
 # Layout stuff.
-bindsym $super+b splith
-bindsym $super+v splitv
+bindsym $mod+b splith
+bindsym $mod+v splitv
 
-bindsym $super+s layout stacking
-bindsym $super+w layout tabbed
-bindsym $super+e layout toggle split
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
 
-bindsym $super+f fullscreen
-bindsym $super+Shift+f floating toggle; resize set 2560 1090; move position 0 0
+bindsym $mod+f fullscreen
+bindsym $mod+Shift+f floating toggle; resize set 2560 1090; move position 0 0
 
-bindsym $super+Shift+space floating toggle
+bindsym $mod+Shift+space floating toggle
 
-bindsym $super+space focus mode_toggle
+bindsym $mod+space focus mode_toggle
 
-bindsym $super+a focus parent
+bindsym $mod+a focus parent
 
 # Scratchpad.
-bindsym $super+Shift+minus move scratchpad
-bindsym $super+minus scratchpad show
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show
 
 # Resize containers.
 mode "Resize" {
@@ -137,9 +136,9 @@ mode "Resize" {
 
     bindsym Return mode "default"
     bindsym Escape mode "default"
-    bindsym $super+r mode "default"
+    bindsym $mod+r mode "default"
 }
-bindsym $super+r mode "Resize"
+bindsym $mod+r mode "Resize"
 
 # Power management.
 set $power_control Power: [L]ock, [E]xit, [S]uspend, [R]eboot, [P]oweroff
@@ -148,13 +147,13 @@ mode "$power_control" {
     bindsym l exec playerctl -a pause && swaylock -f -c 000000, mode default
     bindsym e exec swaymsg exit, mode default
     bindsym s exec swaymsg exec systemctl suspend, mode default
-    bindsym r exec swaymsg exec reboot, mode default
-    bindsym p exec swaymsg exec poweroff, mode default
+    bindsym r exec swaymsg exec systemctl reboot, mode default
+    bindsym p exec swaymsg exec systemctl poweroff, mode default
 
     bindsym Escape mode default
-    bindsym $super+z mode default
+    bindsym $mod+z mode default
 }
-bindsym $super+z mode "$power_control"
+bindsym $mod+z mode "$power_control"
 
 # Screenshots. TODO: Use something else, maybe shotman? remove ocr.
 set $screenshot Screenshot: [S]ave, [C]opy, [O]CR
@@ -165,14 +164,14 @@ mode "$screenshot" {
     bindsym o exec 'grim -g "$(slurp)" - | tesseract -l eng+nor - - | wl-copy', mode default
 
     bindsym Escape mode default
-    bindsym $super+p mode default
+    bindsym $mod+p mode default
     bindsym Print mode default
 }
-bindsym $super+p mode "$screenshot"
+bindsym $mod+p mode "$screenshot"
 bindsym Print mode "$screenshot"
 
 # Password menu.
-bindsym $super+Shift+p exec pkill wmenu || ~/.config/sway/scripts/passage-wmenu
+bindsym $mod+Shift+p exec pkill wmenu || ~/.config/sway/scripts/passage-wmenu
 
 # Brightness control.
 set $brightness_notification ~/.config/sway/scripts/brightness-notification
