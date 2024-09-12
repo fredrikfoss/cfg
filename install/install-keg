@@ -1,30 +1,12 @@
 #!/bin/bash
-set -e
+# Install latest version of keg from
+# https://github.com/rwxrob/keg.
 
-user=rwxrob
-name=keg
-target="$HOME/.local/bin"
+yn() {
+	read -p "$1 [y/N]: " -n 1 -r
+	echo
+	[[ $REPLY =~ ^[yY]$ ]]
+}
 
-os=$(uname -s | tr '[:upper:]' '[:lower:]')
-arch=$(uname -m)
-[[ $arch = x86_64 ]] && arch=amd64
-[[ $arch = aarch64 ]] && arch=arm64
-
-if [[ $os = linux && $arch = arm64 ]]; then
-	echo "Precompiled binary unavailable"
-	echo "Run instead:"
-	echo "go install github.com/rwxrob/keg/cmd/keg@latest"
-	exit
-fi
-
-latest="https://api.github.com/repos/${user}/${name}/releases/latest"
-ver=$(curl -sS "$latest" | jq -r .zipball_url) && test -n "$ver"
-ver=${ver##*/}
-ver=${ver#v}
-exe="${name}-${os}-${arch}"
-url="https://github.com/${user}/${name}/releases/download/v${ver}/${exe}"
-mkdir -p "$target" || true
-cd "$target"
-curl -LO "$url"
-chmod ug+x "$exe"
-mv "$exe" "$name"
+yn "run 'go install github.com/rwxrob/keg/cmd/keg@latest'?" &&
+	go install github.com/rwxrob/keg/cmd/keg@latest

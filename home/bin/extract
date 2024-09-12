@@ -1,6 +1,5 @@
 #!/bin/bash
-
-# TODO: Finish
+# TODO: Finish.
 
 if [[ $# -lt 1 ]]; then
 	echo "usage: ${0##*/} <file>" >&2

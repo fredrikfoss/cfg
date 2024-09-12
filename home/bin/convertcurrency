@@ -1,12 +1,11 @@
 #!/bin/bash
-
 # Convert a specified amount from one currency to another using the
 # exchangerate-api.com service. Assumes either the API key is stored in the
 # environment variable EXCHANGERATE_API_KEY or in a passwordstore accessible
-# via gopass
+# via gopass.
 
 if ! command -v jq &>/dev/null; then
-	echo "requires jq" >&2
+	echo "${0##*/}: requires jq" >&2
 	exit 1
 fi
 

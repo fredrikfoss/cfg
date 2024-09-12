@@ -1,11 +1,11 @@
 #!/bin/bash
-set -e
-
 # Installs the latest release of d2 from https://github.com/terrastruct/d2 to
 # ~/.local without requiring root access.
 #
 # Note that the downloaded tar file is not removed and can be found in $TMPDIR
 # or /tmp.
+
+set -e
 
 declare REPO=arduino/arduino-cli
 declare EXE=arduino-cli

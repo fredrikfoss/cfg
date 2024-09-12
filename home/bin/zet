@@ -1,15 +1,11 @@
-#!/bin/bash
-
-if ! command -v keg &>/dev/null; then
-	echo "requires rwxrob/keg" >&2
+#!/bin/sh
+if ! command -v keg >/dev/null 2>&1; then
+	echo "${0##*/}: requires keg" >&2
 	exit 1
 fi
 
 # export KEG_CURRENT="$GHREPOS/zet/docs"
 # cd "$KEG_CURRENT" && exec keg "$@" || exit 1
-
-# export KEG_CURRENT="$GHREPOS/zet/docs"
-# exec keg "$@"
 
 export KEG_CURRENT="$GHREPOS/zet/doc"
 exec keg "$@"

@@ -1,6 +1,5 @@
 #!/bin/sh
-
-# Yank
+# Copy input to temporary buffer file.
 
 true >/tmp/buf
 while IFS= read -r line; do

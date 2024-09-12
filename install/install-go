@@ -1,11 +1,11 @@
 #!/bin/bash
-set -e
-
 # Install latest release of Go from https://go.dev/dl to ~/.local without
 # requiring root access.
 #
 # Note that the downloaded tar file is not removed and can be found in $TMPDIR
 # or /tmp.
+
+set -e
 
 declare REPO=go.dev/dl
 declare NAME=go

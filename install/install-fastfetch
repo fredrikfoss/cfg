@@ -1,12 +1,12 @@
 #!/bin/bash
-set -e
-
 # Installs the latest release of fastfetch from
 # https://github.com/fastfetch-cli/fastfetch to ~/.local without requiring root
 # access.
 #
 # Note that the downloaded tar file is not removed and can be found in either
 # ~/Downloads or /tmp.
+
+set -e
 
 declare REPO_OWNER=fastfetch-cli
 declare REPO_NAME=fastfetch

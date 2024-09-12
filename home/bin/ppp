@@ -1,5 +1,4 @@
 #!/bin/sh
-
-# Paste
+# Output contents of temporary buffer file.
 
 cat /tmp/buf

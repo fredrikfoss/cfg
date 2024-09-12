@@ -1,17 +1,18 @@
 #!/bin/bash
+# URL-encode input.
 
-# URL-encode input strings either from arguments or STDIN
+export LC_ALL=C
 
 rawurlencode() {
-	local string="${1}"
+	local string=${1}
 	local strlen=${#string}
-	local encoded=""
+	local encoded
 	local pos c o
 
 	for ((pos = 0; pos < strlen; pos++)); do
 		c=${string:$pos:1}
-		case "$c" in
-		[-_.~a-zA-Z0-9]) o="${c}" ;;
+		case $c in
+		[-_.~a-zA-Z0-9]) o=${c} ;;
 		*) printf -v o '%%%02x' "'$c'" ;;
 		esac
 		encoded+="${o}"

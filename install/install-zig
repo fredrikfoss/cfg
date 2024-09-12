@@ -1,11 +1,11 @@
 #!/bin/bash
-set -o nounset
-
 # Installs the latest nightly build of zig from https://ziglang.org/download to
 # ~/.local without requiring root access.
 #
 # Note that the downloaded tar file is not removed and can be found in $TMPDIR
 # or /tmp.
+
+set -o nounset
 
 declare REPO=ziglang.org/download
 declare NAME=zig

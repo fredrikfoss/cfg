@@ -1,19 +1,17 @@
-#!/bin/bash
-
+#!/bin/sh
 html2links() {
-	local url=$1
-	curl -fI "$url" &>/dev/null || {
+	if ! curl -fI "$url" >/dev/null 2>&1; then
 		echo "${0##*/}: unabled to resolve $url" >&2
 		return 1
-	}
+	fi
 	lynx -dump -listonly -nonumbers -hiddenlinks=merge "$url"
 
 }
 
-[[ $# -lt 1 || $1 == -h ]] && {
+if [ $# -eq 0 ] || [ "$1" = -h ]; then
 	echo "usage: ${0##*/} <url> [<url> ...]" >&2
 	exit 1
-}
+fi
 
 for url in "$@"; do
 	html2links "$url"

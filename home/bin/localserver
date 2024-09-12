@@ -1,8 +1,8 @@
 #!/bin/bash
-set -e
-
 # Convert Markdown files in a specified directory to HTML, apply a custom
 # Pandoc template, and start a live preview server with browser-sync
+
+set -e
 
 for cmd in pandoc browser-sync; do
 	if ! command -v $cmd &>/dev/null; then

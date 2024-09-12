@@ -1,4 +1,6 @@
 #!/bin/bash
+# Install latest version of typos from
+# https://github.com/crate-ci/typos.
 
 yn() {
 	read -p "$1 [y/N]: " -n 1 -r

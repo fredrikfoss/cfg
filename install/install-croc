@@ -1,11 +1,11 @@
 #!/bin/bash
-set -e
-
 # Install latest release of croc from https://github.com/schollz/croc to
 # ~/.local without requiring root access.
 #
 # Note that the downloaded tar file is not removed and can be found in
 # ~/Downloads.
+
+set -e
 
 declare REPO=schollz/croc
 declare TARGETDIR="$HOME/.local/bin"

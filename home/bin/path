@@ -1,3 +1,2 @@
 #!/bin/bash
-
-echo -e "${PATH//:/\\n}"
+exec echo -e "${PATH//:/\\n}"

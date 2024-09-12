@@ -1,5 +1,4 @@
 #!/bin/sh
-
 # Resources:
 #   - https://github.com/chaudhryjunaid/setup-my-linux/blob/main/roles/dnf/vars/main.yml
 

@@ -1,11 +1,11 @@
 #!/bin/bash
-set -e
-
 # Install latest release of uv from https://github.com/astral-uv/uv to
 # ~/.local without requiring root access.
 #
 # Note that the downloaded tar file is not removed and can be found in
 # ~/Downloads.
+
+set -e
 
 declare REPO=astral-sh/uv
 declare TARGETDIR="$HOME/.local/bin"

@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/bin/sh
+# Execute specified command with empty PATH.
 
-cmd=$(which "$1")
+set -e
+
+cmd=$(command -v "$1")
 shift
 export PATH=
 exec "$cmd" "$@"

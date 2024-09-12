@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Install latest development version of visidata from
 # https://github.com/saulpw/visidata with uv.
 

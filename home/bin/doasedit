@@ -1,5 +1,4 @@
 #!/bin/sh -e
-
 help() {
 	cat - >&2 <<EOF
 doasedit - edit non-user-editable files with an unprivileged editor

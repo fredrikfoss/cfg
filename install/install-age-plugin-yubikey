@@ -1,4 +1,6 @@
 #!/bin/bash
+# Install latest version of age-plugin-yubikey from
+# https://github.com/str4d/age-plugin-yubikey.
 
 yn() {
 	read -p "$1 [y/N]: " -n 1 -r

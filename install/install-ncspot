@@ -1,4 +1,6 @@
 #!/bin/bash
+# Install latest version of ncspot from
+# https://github.com/hrkfdn/ncspot.
 
 # TODO: Replace with downloading precompiled binary from github releases.
 

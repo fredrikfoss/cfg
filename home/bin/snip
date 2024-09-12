@@ -1,7 +1,6 @@
 #!/bin/bash
-
 # Manage and apply text snippets stored in the SNIPPETS directory, providing
-# functions for creation and usage of named snippet templates
+# functions for creation and usage of named snippet templates.
 
 if [[ -z $SNIPPETS ]]; then
 	echo "SNIPPETS directory undefined"

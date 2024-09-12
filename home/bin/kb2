@@ -1,8 +1,8 @@
 #!/bin/bash
-set -euo pipefail
-
 # Open file in editor by selecting from all markdown document titles under
-# directory
+# directory.
+
+set -euo pipefail
 
 for cmd in fd rg fzf glow; do
 	if ! type $cmd &>/dev/null; then

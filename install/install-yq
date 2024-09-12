@@ -1,4 +1,6 @@
 #!/bin/bash
+# Install latest version of yq from
+# https://github.com/mikefarah/yq.
 
 yn() {
 	read -p "$1 [y/N]: " -n 1 -r

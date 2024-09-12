@@ -1,4 +1,6 @@
 #!/bin/bash
+# Install latest development version of typst from
+# https://github.com/typst/typst.
 
 yn() {
 	read -p "$1 [y/N]: " -n 1 -r

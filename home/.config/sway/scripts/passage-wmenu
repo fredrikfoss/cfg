@@ -30,13 +30,9 @@ key=$(
 )
 
 case $key in
-"Password")
-	echo -n "$(head -n1 <<<"$entry")" | wtype -
-	;;
-"OTP")
-	echo -n "$($PASSAGE otp "$name")" | wtype -
-	;;
-*)
-	echo -n "${entry#*"$key": }" | wtype -
-	;;
+"Password") value=$(head -n1 <<<"$entry") ;;
+"OTP") value=$($PASSAGE otp "$name") ;;
+*) value=$(sed -n "s/^$key: *//p" <<<"$entry") ;;
 esac
+
+echo -n "$value" | wtype -

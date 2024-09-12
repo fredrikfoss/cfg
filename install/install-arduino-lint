@@ -1,12 +1,12 @@
 #!/bin/bash
-set -e
-
 # Installs the latest release from a repository into $TARGETDIR (default:
 # ~/.local) without requiring root access. First argument to script will
 # override $TARGETDIR.
 #
 # Note that the downloaded tar file is not removed and can be found in either
 # ~/Downloads or /tmp.
+
+set -e
 
 declare PROJECT_OWNER=arduino
 declare PROJECT_NAME=arduino-lint

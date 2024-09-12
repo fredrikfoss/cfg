@@ -1,17 +1,16 @@
-#!/bin/bash
-
+#!/bin/sh
 # Generate a citation entry from a given URL by fetching the content of the
 # webpage with curl, formatting it with lynx and processing it with jq, before
-# passing it to gpt
+# passing it to gpt.
 
 for cmd in gpt lynx jq; do
-	if ! type $cmd &>/dev/null; then
+	if ! type $cmd >/dev/null 2>&1; then
 		echo "requires $cmd" >&2
 		exit 1
 	fi
 done
 
-if [[ $# -lt 1 ]]; then
+if [ $# -eq 0 ]; then
 	echo "usage: ${0##*/} <url>" >&2
 	exit 1
 fi

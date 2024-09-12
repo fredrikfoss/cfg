@@ -1,15 +1,14 @@
-#!/bin/bash
-
-# Executes a web search using lynx browser with URL-encoded query parameters
+#!/bin/sh
+# Executes a web search using lynx browser with URL-encoded query parameters.
 
 for cmd in lynx urlencode; do
-	if ! command -v $cmd &>/dev/null; then
-		echo "requires $cmd" >&2
+	if ! command -v $cmd >/dev/null 2>&1; then
+		echo "${0##*/}: requires $cmd" >&2
 		exit 1
 	fi
 done
 
-if [[ $# -lt 1 && -t 0 ]]; then
+if [ $# -eq 0 ] && [ -t 0 ]; then
 	echo "usage: ${0##*/} <url>" >&2
 	exit 1
 fi

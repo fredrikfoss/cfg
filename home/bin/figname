@@ -1,18 +1,16 @@
-#!/bin/bash
-
-if ! command -v identify &>/dev/null; then
-	echo "requires ImageMagick" >&2
+#!/bin/sh
+if ! command -v identify >/dev/null 2>&1; then
+	echo "${0##*/}: requires ImageMagick" >&2
 	exit 1
 fi
 
-if [[ $# -lt 1 ]]; then
+if [ $# -eq 0 ]; then
 	echo "usage: ${0##*/} <image>" >&2
 	exit 1
 fi
 
 main() {
-	# TODO check for existence of identify
-	local w h file suf
+	# TODO: Check for existence of identify.
 	file=${1##*/}
 	suf=${file##*.}
 	w=$(identify -format "%w" "$1")

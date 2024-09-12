@@ -1,5 +1,4 @@
 #!/bin/bash
-
 for cmd in gpt yt-dlp; do
 	if ! command -v $cmd &>/dev/null; then
 		echo "requires $cmd" >&2

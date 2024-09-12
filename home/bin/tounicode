@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Convert colon-enclosed keywords to corresponding Unicode symbols in text
 # files or stdin.
 

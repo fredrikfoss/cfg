@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Install latest development version of vsg from
 # https://github.com/jeremiah-c-leary/vhdl-style-guide with uv.
 

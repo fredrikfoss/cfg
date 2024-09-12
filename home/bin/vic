@@ -1,13 +1,11 @@
 #!/bin/sh
 set -e
 
-_have() { command -v "$1" >/dev/null 2>&1; }
-
 edit() {
-	! _have "$1" && {
-		echo "$1 not found" >&2
+	if ! command -v "$1" >/dev/null 2>&1; then
+		echo "${0##*/}: $1 not found" >&2
 		return 1
-	}
+	fi
 	cmd=$(command -v "$1")
 	cd "$(dirname "$cmd")"
 	"${EDITOR:-vi}" "$1"
@@ -28,19 +26,19 @@ cmds=$(
 	unset IFS
 )
 
-if test -n "${COMP_LINE}"; then
+if [ -n "${COMP_LINE}" ]; then
 	pre="${COMP_LINE##* }"
 	for c in ${cmds:+${cmds}}; do
-		test -z "${pre}" -o "${c}" != "${c#"${pre}"}" && echo "$c"
+		[ -z "${pre}" ] || [ "${c}" != "${c#"${pre}"}" ] && echo "$c"
 	done
 	exit
 fi
 
 # ------------------------------- main -------------------------------
 
-test "$#" -ne 1 && {
+if [ $# -eq 0 ]; then
 	echo "usage: ${0##*/} <command>"
 	exit 1
-}
+fi
 
 edit "$1"

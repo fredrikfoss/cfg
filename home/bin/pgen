@@ -1,8 +1,7 @@
 #!/bin/sh
-
-# Generate a password of N length
+# Generate a password of $1:-25 length.
 
 pass_length="${1:-25}"
 pass=$(LC_ALL=C tr -dc '[:graph:]' </dev/urandom | head -c "$pass_length")
 
-printf '%s\n' "$pass"
+echo "$pass"

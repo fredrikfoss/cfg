@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-
 # Opens what you would expect. If there is no argument passed, it checks
 # if this is a GitHub repo and if so opens it with the gh tool in your
 # browser. Otherwise, it checks if the argument is a file in the current
@@ -48,6 +47,7 @@ if ( -r $_ ) {
 
 # bare url
 m,^http, or s,^,https://,;
+
 # `which lynx 2>/dev/null`          && exec 'lynx',          $_;
 `which /usr/bin/open 2>/dev/null` && exec '/usr/bin/open', $_;
 `which explorer.exe 2>/dev/null`  && exec 'explorer.exe',  $_;

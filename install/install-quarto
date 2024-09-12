@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # dnf5 install R-rmarkdown
 #
 # https://github.com/quarto-dev/quarto-cli
